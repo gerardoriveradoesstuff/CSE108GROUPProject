@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Dashboard | ACME University</title>
+</head>
+<body>
+    <h2>Welcome {{ user.username.capitalize() }}! ACME University</h2>
+    <a href="{{ url_for('main.logout') }}">Sign out</a>
+
+    <h3>Your Courses</h3>
+    <table border="1">
+        <tr>
+            <th>Course Name</th><th>Teacher</th><th>Time</th><th>Students Enrolled</th>
+        </tr>
+        {% for course in user.courses_enrolled %}
+        <tr>
+            <td>{{ course.name }}</td>
+            <td>{{ course.teacher.username }}</td>
+            <td>{{ course.time }}</td>
+            <td>{{ course.students|length }}/{{ course.capacity }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h3>Available Courses</h3>
+    <table border="1">
+        <tr>
+            <th>Course Name</th><th>Teacher</th><th>Time</th><th>Students Enrolled</th><th>Action</th>
+        </tr>
+        {% for course in all_courses %}
+        <tr>
+            <td>{{ course.name }}</td>
+            <td>{{ course.teacher.username }}</td>
+            <td>{{ course.time }}</td>
+            <td>{{ course.students|length }}/{{ course.capacity }}</td>
+            <td style="text-align: center;">
+                {% if course in user.courses_enrolled %}
+                <form method="POST" action="{{ url_for('main.drop_course', course_id=course.id) }}">
+                    <button type="submit" style="background: none; border: none; cursor: pointer;">
+                        <span style="font-size: 20px; color: red;" title="Drop Course">➖</span>
+                    </button>
+                </form>
+                {% elif course.students|length < course.capacity %}
+                <form method="POST" action="{{ url_for('main.add_course', course_id=course.id) }}">
+                    <button type="submit" style="background: none; border: none; cursor: pointer;">
+                        <span style="font-size: 20px; color: green;" title="Add Course">➕</span>
+                    </button>
+                </form>
+                {% else %}
+                <span style="color: gray;" title="Class Full">❌</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
