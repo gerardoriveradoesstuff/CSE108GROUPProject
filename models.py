@@ -23,7 +23,6 @@ class User(UserMixin, db.Model):
 class Course(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False)
-    teacher_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     time = db.Column(db.String(64), nullable=False)
     capacity = db.Column(db.Integer, nullable=False)
     teacher_id = db.Column(db.Integer, db.ForeignKey('user.id'))
