@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Teacher Dashboard | ACME University</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h2>Welcome Dr {{ user.username.capitalize() }}! ACME University</h2>
+    <h2>ACME University</h2>
+    <h3>Welcome {{ user.username.capitalize() }} </h3>
     <a href="{{ url_for('main.logout') }}">Sign out</a>
 
     <h3>Your Courses</h3>
