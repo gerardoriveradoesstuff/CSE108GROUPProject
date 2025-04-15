@@ -4,33 +4,29 @@
     <meta charset="UTF-8">
     <title>{{ course.name }} | ACME University</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <style>
-        input[type="number"] {
-            width: 60px;
-        }
-    </style>
 </head>
-<body style="text-align: center; background-color: #dce6f7;">
-    <p>Welcome Dr {{ user.username.capitalize() }}! <a href="{{ url_for('main.logout') }}">Sign out</a></p>
+<body>
+    <h2>ACME University</h2> 
+    <a href="{{ url_for('main.logout') }}">Sign out</a>
+
+    <a href="{{ url_for('main.teacher_dashboard') }}" class="back-button">
+        ⬅️
+    </a>
 
     <form method="POST">
-        <h2>{{ course.name }}</h2>
+        <h3>Course: {{ course.name }}</h3>
 
-        <a href="{{ url_for('main.teacher_dashboard') }}" class="back-button" style="text-decoration: none;">
-            ⬅️
-        </a>
-
-        <table border="0">
+        <table>
             <thead>
                 <tr>
-                    <th style="text-align: left;">Student Name</th>
+                    <th>Student Name</th>
                     <th>Grade</th>
                 </tr>
             </thead>
             <tbody>
                 {% for student in students %}
                 <tr>
-                    <td style="text-align: left;">{{ student.username }}</td>
+                    <td>{{ student.username }}</td>
                     <td>
                         <input type="number" name="grade_{{ student.id }}"
                                value="{{ grades.get(student.id).grade if grades.get(student.id) else '' }}"
@@ -41,7 +37,6 @@
             </tbody>
         </table>
 
-        <br>
         <input type="submit" value="Save Grades">
     </form>
 </body>
