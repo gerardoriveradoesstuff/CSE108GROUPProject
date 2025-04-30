@@ -4,11 +4,10 @@ from flask_admin import Admin                # Provides an admin dashboard UI fo
 from flask import current_app                # Gives access to the current app context
 from flask_admin.contrib.sqla import ModelView  # Provides default CRUD views for SQLAlchemy models
 from wtforms.fields import SelectField       # Allows custom dropdown fields in forms
-from models import Deadline                  # make sure it's imported
 
 
 # Import models and routes defined in your app
-from models import db, User, Course, Grade   # Database models
+from models import *   # Database models
 from routes import main                      # app's route blueprint (views)
 
 app = Flask(__name__) # Initialize the Flask application
