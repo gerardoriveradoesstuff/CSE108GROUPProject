@@ -5,7 +5,7 @@
 
 .sidebar {
   width: 220px;
-  background-color: #dcdcdc;
+  background-color: #b7b7b7;
   color: #ecf0f1;
   padding: 1rem;
   display: flex;
@@ -40,11 +40,15 @@
 }
 
 .nav-link:hover {
-  background-color: #c2c2c2;
+  background-color: #34495e;
 }
 
 .dashboard-content {
   flex-grow: 1;
   padding: 2rem;
   background-color: #f4f6f8;
+}
+
+.card-body img.rounded-circle {
+  border: 2px solid #dee2e6;
 }
