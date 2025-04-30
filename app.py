@@ -1,10 +1,11 @@
-
 from flask import Flask                      # Flask is the main class for creating a Flask app
 from flask_login import LoginManager         # Handles user login/session management
 from flask_admin import Admin                # Provides an admin dashboard UI for managing models
 from flask import current_app                # Gives access to the current app context
 from flask_admin.contrib.sqla import ModelView  # Provides default CRUD views for SQLAlchemy models
 from wtforms.fields import SelectField       # Allows custom dropdown fields in forms
+from models import Deadline                  # make sure it's imported
+
 
 # Import models and routes defined in your app
 from models import db, User, Course, Grade   # Database models
@@ -54,6 +55,29 @@ class CourseModelView(ModelView):  # Custom admin view for the Flask-Admin
 
 
 
+class DeadlineModelView(ModelView):
+    form_columns = ['assignment', 'due_date', 'course_id', 'user_id']
+    form_overrides = dict(course_id=SelectField, user_id=SelectField)
+    form_args = {
+        'course_id': {'label': 'Course'},
+        'user_id': {'label': 'Teacher'}
+    }
+
+    def create_form(self, obj=None):
+        form = super().create_form(obj)
+        form.course_id.choices = [(c.id, c.name) for c in Course.query.all()]
+        form.user_id.choices = [(u.id, u.username) for u in User.query.filter_by(role='teacher')]
+        return form
+
+    def edit_form(self, obj=None):
+        form = super().edit_form(obj)
+        form.course_id.choices = [(c.id, c.name) for c in Course.query.all()]
+        form.user_id.choices = [(u.id, u.username) for u in User.query.filter_by(role='teacher')]
+        return form
+
+
+
+
 admin = Admin(app, name='Admin Panel')
 # Register the custom Course view to avoid name collision and provide teacher dropdown
 admin.add_view(CourseModelView(Course, db.session, name="Course", endpoint="course_admin"))
@@ -62,7 +86,7 @@ admin.add_view(ModelView(User, db.session))
 # admin.add_view(ModelView(Course, db.session))
 admin.add_view(ModelView(Grade, db.session))
 
-
+admin.add_view(DeadlineModelView(Deadline, db.session))
 
 
 # Create tables on first run
