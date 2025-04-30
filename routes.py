@@ -62,7 +62,13 @@ def student_dashboard():
     # re-fetch the user with all relationships eagerly loaded
     user = User.query.options(joinedload(User.courses_enrolled).joinedload(Course.teacher)).get(current_user.id)
     all_courses = Course.query.all()
+    user = User.query.options(
+        joinedload(User.courses_enrolled).joinedload(Course.teacher),
+        joinedload(User.deadlines)
+    ).get(current_user.id)
+
     return render_template("student_dashboard.html", user=user, all_courses=all_courses)
+
 
 @main.route("/student/add/<int:course_id>", methods=["POST"])
 @login_required
@@ -128,3 +134,33 @@ def class_detail(course_id):
 
 # def get_current_user_with_courses():
 #     return User.query.options(joinedload(User.courses_enrolled).joinedload(Course.teacher)).get(current_user.id)
+
+@main.route("/teacher/course/<int:course_id>/add_deadline", methods=["GET", "POST"])
+@login_required
+def add_deadline(course_id):
+
+    """
+    /teacher/course/<id>/add_deadline is intuitive and RESTful: modifying a course sub-resource.
+    :param course_id:
+    :return:
+    """
+    course = Course.query.get(course_id)
+
+    # Route guards (course.teacher_id != current_user.id) enforce security so only the correct teacher can access it.
+    # Verify the teacher owns the course
+    if course.teacher_id != current_user.id:
+        flash("You do not have permission to add a deadline to this course.")
+        return redirect(url_for('main.teacher_dashboard'))
+
+    if request.method == "POST":
+        task = request.form.get("task")
+        date = request.form.get("date")
+
+        if task and date:
+            deadline = Deadline(task=task, date=date, course_id=course.id, teacher_id=current_user.id)
+            db.session.add(deadline)
+            db.session.commit()
+            flash("Deadline added successfully!")
+            return redirect(url_for("main.class_detail", course_id=course.id))
+
+    return render_template("add_deadline.html", course=course)
