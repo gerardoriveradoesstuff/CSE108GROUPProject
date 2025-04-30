@@ -37,9 +37,11 @@ class Grade(db.Model):
 
 class Deadline(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    task = db.Column(db.String(128), nullable=False)
-    date = db.Column(db.String(64), nullable=False)  # or use db.Date
-    course_name = db.Column(db.String(64), nullable=False)
+    assignment = db.Column(db.String(128), nullable=False)
+    due_date = db.Column(db.String(64), nullable=False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))  # link to User
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
+    course = db.relationship('Course', backref='deadlines')
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', back_populates='deadlines')
