@@ -186,7 +186,7 @@ def add_deadline(course_id):
 
 @main.route('/finance')
 def finance_dashboard():
-    return render_template('finance.html', user=current_user.id)
+    return render_template('finance.html', user=current_user)
 
 
 @main.route('/add-user', methods=['POST'])
@@ -257,6 +257,13 @@ def add_transaction():
         # Validate that only one field is filled
         if (income == 0 and expense == 0) or (income > 0 and expense > 0):
             return jsonify({'error': 'Please provide either income or expense, but not both.'}), 400
+
+        if not data:
+            return jsonify({'error': 'Missing JSON payload'}), 400
+
+        if user_id is None or category_id is None:
+            return jsonify({'error': 'Missing user_id or category_id'}), 400
+
 
         # Create a new transaction
         transaction = Transaction(
