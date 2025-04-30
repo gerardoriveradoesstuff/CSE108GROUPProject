@@ -7,11 +7,34 @@
 </head>
 <body>
     <h2>Register for ACME University</h2>
-    <form method="POST">
+
+    <form method="POST" action="{{ url_for('main.register') }}">
         {{ form.hidden_tag() }}
-        <p>{{ form.username.label }}<br>{{ form.username(size=32) }}</p>
-        <p>{{ form.password.label }}<br>{{ form.password(size=32) }}</p>
-        <p>{{ form.role.label }}<br>{{ form.role() }}</p>
+
+        <p>{{ form.username.label }}<br>
+        {{ form.username(size=32) }}
+        {% for error in form.username.errors %}
+            <span class="error-message">{{ error }}</span>
+        {% endfor %}</p>
+
+        <p>{{ form.email.label }}<br>
+        {{ form.email(size=32) }}
+        {% for error in form.email.errors %}
+            <span class="error-message">{{ error }}</span>
+        {% endfor %}</p>
+
+        <p>{{ form.password.label }}<br>
+        {{ form.password(size=32) }}
+        {% for error in form.password.errors %}
+            <span class="error-message">{{ error }}</span>
+        {% endfor %}</p>
+
+        <p>{{ form.role.label }}<br>
+        {{ form.role() }}
+        {% for error in form.role.errors %}
+            <span class="error-message">{{ error }}</span>
+        {% endfor %}</p>
+
         <p>{{ form.submit() }}</p>
     </form>
 
