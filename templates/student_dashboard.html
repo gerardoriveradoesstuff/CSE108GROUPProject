@@ -5,56 +5,73 @@
     <title>Student Dashboard | ACME University</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body>
-    <h2>ACME University</h2>
-    <h3>Welcome {{ user.username.capitalize() }} </h3>
-    <a href="{{ url_for('main.logout') }}">Sign out</a>
+<body class="student-dashboard">
 
-    <h3>Your Courses</h3>
-    <table border="1">
-        <tr>
-            <th>Course Name</th><th>Teacher</th><th>Time</th><th>Students Enrolled</th>
-        </tr>
-        {% for course in user.courses_enrolled %}
-        <tr>
-            <td>{{ course.name }}</td>
-            <td>{{ course.teacher.username }}</td>
-            <td>{{ course.time }}</td>
-            <td>{{ course.students|length }}/{{ course.capacity }}</td>
-        </tr>
-        {% endfor %}
+    <h2 class="university-name">ACME University</h2>
+    <h3 class="welcome-message">Welcome {{ user.username.capitalize() }}</h3>
+    <a href="{{ url_for('main.logout') }}" class="signout-link">Sign out</a>
+
+    <h3 class="courses-section">Your Courses</h3>
+    <table class="courses-table" border="1">
+        <thead>
+            <tr class="table-header">
+                <th class="column-course-name">Course Name</th>
+                <th class="column-teacher">Teacher</th>
+                <th class="column-time">Time</th>
+                <th class="column-enrollment">Students Enrolled</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course in user.courses_enrolled %}
+            <tr class="course-row enrolled-course">
+                <td class="cell-course-name">{{ course.name }}</td>
+                <td class="cell-teacher">{{ course.teacher.username }}</td>
+                <td class="cell-time">{{ course.time }}</td>
+                <td class="cell-enrollment">{{ course.students|length }}/{{ course.capacity }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
 
-    <h3>Available Courses</h3>
-    <table border="1">
-        <tr>
-            <th>Course Name</th><th>Teacher</th><th>Time</th><th>Students Enrolled</th><th>Action</th>
-        </tr>
-        {% for course in all_courses %}
-        <tr>
-            <td>{{ course.name }}</td>
-            <td>{{ course.teacher.username }}</td>
-            <td>{{ course.time }}</td>
-            <td>{{ course.students|length }}/{{ course.capacity }}</td>
-            <td style="text-align: center;">
-                {% if course in user.courses_enrolled %}
-                <form method="POST" action="{{ url_for('main.drop_course', course_id=course.id) }}">
-                    <button type="submit" style="background: none; border: none; cursor: pointer;">
-                        <span style="font-size: 20px; color: red;" title="Drop Course">➖</span>
-                    </button>
-                </form>
-                {% elif course.students|length < course.capacity %}
-                <form method="POST" action="{{ url_for('main.add_course', course_id=course.id) }}">
-                    <button type="submit" style="background: none; border: none; cursor: pointer;">
-                        <span style="font-size: 20px; color: green;" title="Add Course">➕</span>
-                    </button>
-                </form>
-                {% else %}
-                <span style="color: gray;" title="Class Full">❌</span>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
+    <h3 class="section-title available-courses-title">Available Courses</h3>
+    <table class="courses-table available-courses-table" border="1">
+        <thead>
+            <tr class="table-header">
+                <th class="column-course-name">Course Name</th>
+                <th class="column-teacher">Teacher</th>
+                <th class="column-time">Time</th>
+                <th class="column-enrollment">Students Enrolled</th>
+                <th class="column-action">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for course in all_courses %}
+            <tr class="available-course">
+                <td class="cell-course-name">{{ course.name }}</td>
+                <td class="cell-teacher">{{ course.teacher.username }}</td>
+                <td class="cell-time">{{ course.time }}</td>
+                <td class="cell-enrollment">{{ course.students|length }}/{{ course.capacity }}</td>
+                <td class="cell-action" style="text-align: center;">
+                    {% if course in user.courses_enrolled %}
+                    <form method="POST" action="{{ url_for('main.drop_course', course_id=course.id) }}" class="drop-course-form">
+                        <button type="submit" class="drop-button" style="background: none; border: none; cursor: pointer;">
+                            <span class="drop-icon" style="font-size: 20px; color: red;" title="Drop Course">➖</span>
+                        </button>
+                    </form>
+                    {% elif course.students|length < course.capacity %}
+                    <form method="POST" action="{{ url_for('main.add_course', course_id=course.id) }}" class="add-course-form">
+                        <button type="submit" class="add-button" style="background: none; border: none; cursor: pointer;">
+                            <span class="add-icon" style="font-size: 20px; color: green;" title="Add Course">➕</span>
+                        </button>
+                    </form>
+                    {% else %}
+                    <span class="full-class-icon" style="color: gray;" title="Class Full">❌</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
+
 </body>
 </html>
