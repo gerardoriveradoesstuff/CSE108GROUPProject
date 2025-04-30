@@ -24,26 +24,24 @@
                         <li class="nav-item"><a class="nav-link" href="#">📊 Grades</a></li>
                         <li class="nav-item"><a class="nav-link text-danger" href="{{ url_for('main.logout') }}">🚪 Sign out</a></li>
                     </ul>
-                    <div class="card mt-4 shadow-sm">
-                        <div class="card-header">
-                            📅 Upcoming Deadlines
+                    <div class="card mt-4 shadow-sm mx-3">
+                        <div class="card-header p-2">
+                            📅 Deadlines
                         </div>
-                        <ul class="list-group list-group-flush">
-                            {% if user.deadlines %}
-                            {% for deadline in user.deadlines %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong>{{ deadline.course_name }}</strong><br>
-                                    <small>{{ deadline.task }}</small>
-                                </div>
-                                <span class="badge bg-warning text-dark">{{ deadline.date }}</span>
+                        <ul class="list-group list-group-flush small">
+                            {% if deadlines %}
+                            {% for deadline in deadlines %}
+                            <li class="list-group-item px-2 py-1">
+                                <strong>{{ deadline.course_name }}</strong><br>
+                                <span class="text-muted small">{{ deadline.task }} - {{ deadline.date }}</span>
                             </li>
                             {% endfor %}
                             {% else %}
-                            <li class="list-group-item text-muted">No upcoming deadlines.</li>
+                            <li class="list-group-item text-muted small px-2 py-1">No upcoming deadlines.</li>
                             {% endif %}
                         </ul>
                     </div>
+
                 </div>
             </nav>
 
