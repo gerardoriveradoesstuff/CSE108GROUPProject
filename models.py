@@ -19,6 +19,8 @@ class User(UserMixin, db.Model):
     # For students and teachers
     courses_enrolled = db.relationship('Course', secondary=enrollments, backref='students')
     courses_taught = db.relationship('Course', backref='teacher', foreign_keys='Course.teacher_id')
+    deadlines = db.relationship('Deadline', back_populates='user', cascade="all, delete-orphan")
+
 
 class Course(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -32,3 +34,12 @@ class Grade(db.Model):
     student_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
     grade = db.Column(db.Integer)
+
+class Deadline(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    task = db.Column(db.String(128), nullable=False)
+    date = db.Column(db.String(64), nullable=False)  # or use db.Date
+    course_name = db.Column(db.String(64), nullable=False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))  # link to User
+    user = db.relationship('User', back_populates='deadlines')
