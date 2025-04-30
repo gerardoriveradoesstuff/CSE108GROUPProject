@@ -22,6 +22,11 @@
             <td>{{ course.time }}</td>
             <td>{{ course.students|length }}/{{ course.capacity }}</td>
             <td><a href="{{ url_for('main.class_detail', course_id=course.id) }}">Click here</a></td>
+            <td>
+                <a href="{{ url_for('main.class_detail', course_id=course.id) }}">View</a> |
+                <a href="{{ url_for('main.add_deadline', course_id=course.id) }}">Add Deadline</a>
+            </td>
+
         </tr>
         {% endfor %}
     </table>
