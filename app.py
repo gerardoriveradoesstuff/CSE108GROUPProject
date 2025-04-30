@@ -1,37 +1,42 @@
-from flask import Flask
-from flask_login import LoginManager
-from flask_admin import Admin
-from flask import current_app
-from flask_admin.contrib.sqla import ModelView
-from wtforms.fields import SelectField
 
-from models import db, User, Course, Grade
-from routes import main
+from flask import Flask                      # Flask is the main class for creating a Flask app
+from flask_login import LoginManager         # Handles user login/session management
+from flask_admin import Admin                # Provides an admin dashboard UI for managing models
+from flask import current_app                # Gives access to the current app context
+from flask_admin.contrib.sqla import ModelView  # Provides default CRUD views for SQLAlchemy models
+from wtforms.fields import SelectField       # Allows custom dropdown fields in forms
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret-key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Import models and routes defined in your app
+from models import db, User, Course, Grade   # Database models
+from routes import main                      # app's route blueprint (views)
+
+app = Flask(__name__) # Initialize the Flask application
+
+app.config['SECRET_KEY'] = 'secret-key' # Used for securely signing session cookies
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'  # Using SQLite DB stored in local file
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # false to prevent extra memory and CPU overhead
 
 # Init extensions
-db.init_app(app)
-login_manager = LoginManager(app)
-login_manager.login_view = "main.login"
+db.init_app(app)                             # SQLAlchemy with app
+login_manager = LoginManager(app)            # Flask-Login
+login_manager.login_view = "main.login"      # Redirect to 'main.login' when unauthenticated users try to access login-required pages
+
 
 # Register blueprint
-app.register_blueprint(main)
+app.register_blueprint(main)  # Register routes (views) defined in the 'main' Blueprint (from routes.py)
 
 
-@login_manager.user_loader
+@login_manager.user_loader      # Tells Flask-Login how to load a user from a given user ID
 def load_user(user_id):
-    with current_app.app_context():
-        return db.session.get(User, int(user_id))
+    with current_app.app_context():   # Make sure we're in the app context (safe to access DB)
+        return db.session.get(User, int(user_id))  # Use SQLAlchemy 2.x style to retrieve a user by primary key
+
 
 # Flask-Admin customization
-class CourseModelView(ModelView):
-    form_overrides = dict(teacher_id=SelectField)
-    form_args = {'teacher_id': {'label': 'Teacher'}}
-    form_columns = ['name', 'time', 'capacity', 'teacher_id']  # 👈 important
+class CourseModelView(ModelView):  # Custom admin view for the Flask-Admin
+    form_overrides = dict(teacher_id=SelectField) # Override the default field with a dropdown to select teacher when creating class
+    form_args = {'teacher_id': {'label': 'Teacher'}} # Label for the dropdown
+    form_columns = ['name', 'time', 'capacity', 'teacher_id']  #  important: Specify visible/editable form fields
 
     def create_form(self, obj=None):
         form = super().create_form(obj)
@@ -50,6 +55,7 @@ class CourseModelView(ModelView):
 
 
 admin = Admin(app, name='Admin Panel')
+# Register the custom Course view to avoid name collision and provide teacher dropdown
 admin.add_view(CourseModelView(Course, db.session, name="Course", endpoint="course_admin"))
 # Flask-Admin setup
 admin.add_view(ModelView(User, db.session))
@@ -60,8 +66,8 @@ admin.add_view(ModelView(Grade, db.session))
 
 
 # Create tables on first run
-with app.app_context():
-    db.create_all()
+with app.app_context():  # app context to  access db
+    db.create_all() # Create tables if they don’t exist
 
 if __name__ == '__main__':
     app.run(debug=True)

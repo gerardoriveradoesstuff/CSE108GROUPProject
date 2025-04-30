@@ -52,3 +52,14 @@
 .card-body img.rounded-circle {
   border: 2px solid #dee2e6;
 }
+
+
+.sidebar .card {
+  font-size: 0.85rem;
+}
+
+.sidebar .list-group-item {
+  border: none;
+  padding: 0.5rem 0.75rem;
+}
+
