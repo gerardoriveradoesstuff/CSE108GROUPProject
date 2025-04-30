@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, login_required, logout_user, current_user
-from models import db, User, Course, Grade
+from models import db, User, Course, Grade, Deadline
 from forms import LoginForm, RegisterForm
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
@@ -55,19 +55,26 @@ def logout():
 @main.route("/student")
 @login_required
 def student_dashboard():
-    # this is lazy-loading. Didn't work because
-    # current_user (student) is passed directly into templates. The session closes before the template tries to access it
-    # all_courses = Course.query.all()
-    # return render_template("student_dashboard.html", user=current_user, all_courses=all_courses)
-    # re-fetch the user with all relationships eagerly loaded
-    user = User.query.options(joinedload(User.courses_enrolled).joinedload(Course.teacher)).get(current_user.id)
-    all_courses = Course.query.all()
+
+    """
+    Why this organization?
+    Keeps User focused on enrollment
+    Deadlines are fetched via a one-time filter using the course_id values
+    This pattern separates logic: user.courses_enrolled handles relationships, and Deadline.query.filter() does the temporal filtering
+
+    """
     user = User.query.options(
-        joinedload(User.courses_enrolled).joinedload(Course.teacher),
-        joinedload(User.deadlines)
+        joinedload(User.courses_enrolled).joinedload(Course.teacher)
     ).get(current_user.id)
 
-    return render_template("student_dashboard.html", user=user, all_courses=all_courses)
+    all_courses = Course.query.all()
+
+    # Get all deadlines where the course is one the student is enrolled in
+    course_ids = [course.id for course in user.courses_enrolled]
+    deadlines = Deadline.query.filter(Deadline.course_id.in_(course_ids)).all()
+
+    return render_template("student_dashboard.html", user=user, all_courses=all_courses, deadlines=deadlines)
+
 
 
 @main.route("/student/add/<int:course_id>", methods=["POST"])
@@ -153,11 +160,11 @@ def add_deadline(course_id):
         return redirect(url_for('main.teacher_dashboard'))
 
     if request.method == "POST":
-        task = request.form.get("task")
-        date = request.form.get("date")
+        assignment = request.form.get("assignment")
+        due_date = request.form.get("due-date")
 
-        if task and date:
-            deadline = Deadline(task=task, date=date, course_id=course.id, teacher_id=current_user.id)
+        if assignment and due_date:
+            deadline = Deadline(assignment=assignment, due_date=due_date, course_id=course.id, user_id=current_user.id)
             db.session.add(deadline)
             db.session.commit()
             flash("Deadline added successfully!")
