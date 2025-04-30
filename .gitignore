@@ -1,8 +1,15 @@
 __pycache__/
-*.pyc
+
+
+# <----- specific directories ------>
 instance/
-*.sqlite3
-.env
 .venv/
 venv/
 env/
+.env
+
+# <----- specific files ------>
+*.pyc
+*.sqlite3
+*.zip
+*.png
