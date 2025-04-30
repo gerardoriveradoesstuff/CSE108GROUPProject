@@ -1,4 +1,5 @@
-/* Base Theme Toggle Styles */
+/* ===== BASE THEME & SWITCH ===== */
+
 .theme-switch {
     position: relative;
     display: inline-block;
@@ -22,7 +23,11 @@ body.dark-mode {
     color: #eaeaea;
 }
 
-/* Sidebar */
+/* ===== END BASE THEME & SWITCH ===== */
+
+
+/* ===== SIDEBAR STYLING ===== */
+
 body.light-mode .sidebar {
     background-color: #f8f9fa;
 }
@@ -30,35 +35,44 @@ body.dark-mode .sidebar {
     background-color: #1f1f1f;
 }
 
-
 .sidebar-header {
     color: inherit;
 }
-/*----------------------------*/
-/* Navbar & Headings */
 
-/* Light Mode */
+/* ===== END SIDEBAR STYLING ===== */
+
+
+/* ===== NAVIGATION / HEADER BAR ===== */
+
 body.light-mode #top-navbar {
     background-color: #ffffff;
     color: #212529;
     border-bottom: 1px solid #e0e0e0;
 }
 
-/* Dark Mode */
 body.dark-mode #top-navbar {
     background-color: #1e1e1e;
     color: #f1f1f1;
     border-bottom: 1px solid #444;
 }
 
-/*----------------------------*/
-/* Content Headings */
-body.dark-mode h1,
-body.dark-mode h2,
-body.dark-mode h3,
-body.dark-mode h5 {
-    color: #ffffff;
+body.light-mode #top-navbar a {
+    background-color: #ffffff;
+    color: #212529;
+    border-bottom: 1px solid #e0e0e0;
 }
+
+body.dark-mode #top-navbar a {
+    background-color: #1e1e1e;
+    color: #f1f1f1;
+    border-bottom: 1px solid #444;
+}
+
+/* ===== END NAVIGATION / HEADER BAR ===== */
+
+
+/* ===== HEADINGS ===== */
+
 body.light-mode h1,
 body.light-mode h2,
 body.light-mode h3,
@@ -66,14 +80,28 @@ body.light-mode h5 {
     color: #212529;
 }
 
-/* Default Nav Link Style */
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h5 {
+    color: #ffffff;
+}
+
+h3.h5 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+/* ===== END HEADINGS ===== */
+
+
+/* ===== LINK & NAVIGATION COLORS ===== */
+
 .nav-link {
     font-weight: 500;
     transition: color 0.3s ease;
 }
 
-/*----------------------------*/
-/* Light Mode Colors */
 body.light-mode .nav-link {
     color: #212529;
 }
@@ -86,8 +114,6 @@ body.light-mode .signout-link {
     color: #dc3545;
 }
 
-/*----------------------------*/
-/* Dark Mode Colors */
 body.dark-mode .nav-link {
     color: #e0e0e0;
 }
@@ -100,92 +126,60 @@ body.dark-mode .signout-link {
     color: #ff6b6b;
 }
 
-/*----------------------------*/
-/* Cards */
-body.dark-mode .card {
-    background-color: #1e1e1e;
-    color: #ffffff;
-    border-color: #333;
-}
+/* ===== END LINK & NAVIGATION COLORS ===== */
+
+
+/* ===== CARD STYLING ===== */
+
 body.light-mode .card {
     background-color: #ffffff;
     color: #212529;
     border-color: #ccc;
 }
 
-/* Card Headers */
-body.dark-mode .card-header {
-    background-color: #2a2a2a;
-    border-bottom: 1px solid #444;
+body.dark-mode .card {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border-color: #333;
 }
+
 body.light-mode .card-header {
     background-color: #f1f1f1;
     border-bottom: 1px solid #ddd;
 }
 
-
-/*----------------------------*/
-/* List Groups (e.g., deadlines) */
-body.dark-mode .list-group-item {
-    background-color: #252525;
-    color: #ffffff;
-    border-color: #333;
+body.dark-mode .card-header {
+    background-color: #2a2a2a;
+    border-bottom: 1px solid #444;
 }
+
+/* ===== END CARD STYLING ===== */
+
+
+/* ===== LIST GROUPS ===== */
+
 body.light-mode .list-group-item {
     background-color: #ffffff;
     color: #212529;
     border-color: #ddd;
 }
 
+body.dark-mode .list-group-item {
+    background-color: #252525;
+    color: #ffffff;
+    border-color: #333;
+}
+
+/* ===== END LIST GROUPS ===== */
+
 
 /* ===== TABLE STYLING ===== */
 
-/* Apply consistent table styling */
 .table {
     border-collapse: separate;
     border-spacing: 0;
     border-radius: 8px;
     overflow: hidden;
-}
-
-/* Override Bootstrap's striped table FOR DARK MODE */
-body.dark-mode .table.table-striped tbody tr:nth-of-type(odd) {
-    background-color: #252525 !important;
-}
-
-body.dark-mode .table.table-striped tbody tr:nth-of-type(even) {
-    background-color: #1e1e1e !important;
-}
-
-/* Dark Mode */
-body.dark-mode .table {
-    background-color: #1e1e1e;
-    color: #f1f1f1;
-}
-
-body.dark-mode .table thead {
-    background-color: #2a2a2a;
-    color: #ffffff;
-    font-weight: 600;
-}
-
-body.dark-mode .table tbody tr {
-    background-color: #1e1e1e;
-    transition: background-color 0.3s;
-}
-
-body.dark-mode .table tbody tr:nth-of-type(odd) {
-    background-color: #252525;
-}
-
-body.dark-mode .table tbody tr:hover {
-    background-color: #333;
-}
-
-body.dark-mode .table td,
-body.dark-mode .table th {
-    border-color: #444;
-    padding: 0.75rem;
 }
 
 /* Light Mode */
@@ -210,13 +204,46 @@ body.light-mode .table th {
     border-color: #dee2e6;
 }
 
-/* Section spacing */
-h3.h5 {
-    margin-top: 2rem;
-    margin-bottom: 1rem;
+/* Dark Mode */
+body.dark-mode .table {
+    background-color: #1e1e1e;
+    color: #f1f1f1;
 }
 
-/* Button refinement */
+body.dark-mode .table thead th {
+    background-color: #2a2a2a !important;
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+body.dark-mode .table tbody td {
+    background-color: #2a2a2a !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .table.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #252525 !important;
+}
+
+body.dark-mode .table.table-striped tbody tr:nth-of-type(even) {
+    background-color: #1e1e1e !important;
+}
+
+body.dark-mode .table tbody tr:hover {
+    background-color: #333;
+}
+
+body.dark-mode .table td,
+body.dark-mode .table th {
+    border-color: #444;
+    padding: 0.75rem;
+}
+
+/* ===== END TABLE STYLING ===== */
+
+
+/* ===== BUTTONS ===== */
+
 .btn {
     border-radius: 8px;
     padding: 0.375rem 0.75rem;
@@ -224,7 +251,6 @@ h3.h5 {
     font-size: 0.9rem;
 }
 
-/* Center align action buttons */
 td.text-center button {
     width: 36px;
     height: 36px;
@@ -235,36 +261,45 @@ td.text-center button {
     align-items: center;
 }
 
-
-
-/* Buttons */
 body.dark-mode .btn {
     background-color: #444;
     border-color: #666;
     color: #f1f1f1;
 }
+
 body.dark-mode .btn-outline-danger {
     color: #ff6b6b;
     border-color: #ff6b6b;
 }
+
 body.dark-mode .btn-outline-success {
     color: #4caf50;
     border-color: #4caf50;
 }
+
 body.dark-mode .btn-outline-secondary {
     color: #ccc;
     border-color: #ccc;
 }
 
-/* Misc */
-body.dark-mode .text-muted {
-    color: #bbbbbb !important;
-}
+/* ===== END BUTTONS ===== */
+
+
+/* ===== TEXT UTILITIES ===== */
+
 body.light-mode .text-muted {
     color: #6c757d !important;
 }
 
-/* Slider Background */
+body.dark-mode .text-muted {
+    color: #bbbbbb !important;
+}
+
+/* ===== END TEXT UTILITIES ===== */
+
+
+/* ===== SLIDER SWITCH ===== */
+
 .slider {
     position: absolute;
     cursor: pointer;
@@ -277,7 +312,6 @@ body.light-mode .text-muted {
     border-radius: 34px;
 }
 
-/* Slider Rounded Knob */
 .slider::before {
     position: absolute;
     content: "";
@@ -290,7 +324,6 @@ body.light-mode .text-muted {
     border-radius: 50%;
 }
 
-/* Icons */
 .slider .icon {
     position: absolute;
     top: 50%;
@@ -299,27 +332,24 @@ body.light-mode .text-muted {
     pointer-events: none;
 }
 
-/* Sun Icon (Left) */
 .slider .icon.sun {
-    left: 5px; /* Increased spacing */
+    left: 5px;
     top: 16px;
-    color: #f39c12; /* Sun Color */
+    color: #f39c12;
 }
 
-/* Moon Icon (Right) */
 .slider .icon.moon {
-    left: 31px; /* Increased spacing */
+    left: 31px;
     top: 16px;
-    color: #f1c40f; /* Moon Color */
+    color: #f1c40f;
 }
-/* When checkbox is checked, move the knob */
+
 .theme-switch input:checked + .slider::before {
-  transform: translateX(26px);
+    transform: translateX(26px);
 }
 
-/* Optional: change slider background on toggle */
 .theme-switch input:checked + .slider {
-  background-color: #2196F3;
+    background-color: #2196F3;
 }
 
-
+/* ===== END SLIDER SWITCH ===== */
