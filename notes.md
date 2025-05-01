@@ -71,7 +71,7 @@ Enable teachers to:
 
 ---
 
-# TEACHER DASHBOARD
+# ✅ Feature 4 :Teacher Dashboard
 ### Design Motivation and Layout Rationale
 
 ### Why this makes sense:
@@ -159,7 +159,87 @@ def student_dashboard():
 
 ----
 
-## FRONTEND DESIGN
+# ✅ Feature 5: Upcoming Deadlines Panel
+
+Here is a clear summary that answers all your design reflection questions using the merged logic from your current app and the previous explanation:
+
+---
+
+## ✅ Application Design Summary
+
+### ❓**How did you lay out the ideas?**
+The application is built around a central `User` model that links to financial models like `Transaction`, `Category`, and `Report` through foreign key relationships. Instead of requiring duplicate user data for the finance module, the user is authenticated once and used throughout the app via `current_user`.
+
+---
+
+### 🎯 **How did you motivate your design?**
+
+- **Efficiency**: Avoid redundant data entry — once a user logs in, they shouldn't have to add themselves again.
+- **Clarity**: Prevent confusion by hiding UI elements (like the "Add User" form) that no longer apply.
+- **Scalability**: Use standard SQLAlchemy relationships to allow new financial features (e.g., budgeting, forecasting) without schema redesign.
+
+---
+
+### 🧱 **Why does it look like this?**
+
+The interface uses **Bootstrap cards** to visually separate core functions: user creation, category management, transactions, and reports. This layout makes the UI:
+
+- Easy to navigate
+- Modular (each card is one core feature)
+- Consistent with web application design best practices
+
+Forms like "Add User" are conditionally rendered so they only appear when truly necessary (i.e., when the user isn’t logged in).
+
+---
+
+### 🧩 **Why did you organize your data this way?**
+
+The data is organized relationally:
+- `User` is a single source of truth.
+- Each `Transaction` and `Report` references a `user_id`.
+
+This avoids duplication, reduces errors, and supports **relational integrity** — critical for data consistency and performance.
+
+---
+
+### 📦 **Why did you store it this way?**
+
+Using foreign keys (`user_id`) instead of embedding user details in every transaction:
+- Saves space
+- Makes updates easier (you only update the User table)
+- Allows JOINs to fetch user-related financial data in a single query
+
+This reflects standard database normalization principles.
+
+---
+
+### 🔁 **Why did you make routing look like this?**
+
+```python
+@main.route('/finance')
+@login_required
+def finance_dashboard():
+    return render_template('finance.html', user=current_user)
+```
+
+- `@login_required` ensures only logged-in users access the dashboard.
+- `user=current_user` makes user data available to the template without extra database queries.
+- This fits Flask’s **Blueprint architecture**, making the endpoint `main.finance_dashboard` — logically scoped and RESTful.
+
+---
+
+### 💬 **Does that make sense?**
+
+Yes:
+- No duplicate models
+- Clean template logic
+- Dynamically adapts to logged-in state
+- Centralizes user context using `current_user`
+
+---
+
+
+## ▶️ FRONTEND DESIGN
 
 #### Bootstrap styling
 
