@@ -3,7 +3,8 @@ from flask_login import LoginManager         # Handles user login/session manage
 from flask_admin import Admin                # Provides an admin dashboard UI for managing models
 from flask import current_app                # Gives access to the current app context
 from flask_admin.contrib.sqla import ModelView  # Provides default CRUD views for SQLAlchemy models
-from wtforms.fields import SelectField       # Allows custom dropdown fields in forms
+from wtforms import SelectField
+from forms import UserAdminForm
 
 
 # Import models and routes defined in your app
@@ -53,7 +54,6 @@ class CourseModelView(ModelView):  # Custom admin view for the Flask-Admin
         return form
 
 
-
 class DeadlineModelView(ModelView):
     form_columns = ['assignment', 'due_date', 'course_id', 'user_id']
     form_overrides = dict(course_id=SelectField, user_id=SelectField)
@@ -75,13 +75,21 @@ class DeadlineModelView(ModelView):
         return form
 
 
+class UserModelView(ModelView):
+    form = UserAdminForm  # use the custom form
+    form_columns = ['username', 'email', 'password', 'role']
+    column_exclude_list = ['password']
 
+    def on_model_change(self, form, model, is_created):
+        from werkzeug.security import generate_password_hash
+        if is_created or not check_password_hash(model.password, form.password.data):
+            model.password = generate_password_hash(form.password.data)
 
 admin = Admin(app, name='Admin Panel')
 # Register the custom Course view to avoid name collision and provide teacher dropdown
 admin.add_view(CourseModelView(Course, db.session, name="Course", endpoint="course_admin"))
 # Flask-Admin setup
-admin.add_view(ModelView(User, db.session))
+admin.add_view(UserModelView(User, db.session))
 # admin.add_view(ModelView(Course, db.session))
 admin.add_view(ModelView(Grade, db.session))
 
