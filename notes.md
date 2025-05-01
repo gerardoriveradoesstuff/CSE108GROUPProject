@@ -159,7 +159,6 @@ def student_dashboard():
 
 ---
 
-
 ## ❓**How did you lay out the ideas?**
 The application is built around a central `User` model that links to financial models like `Transaction`, `Category`, and `Report` through foreign key relationships. Instead of requiring duplicate user data for the finance module, the user is authenticated once and used throughout the app via `current_user`.
 
