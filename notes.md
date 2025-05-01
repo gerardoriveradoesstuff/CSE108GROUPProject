@@ -55,7 +55,6 @@ This mirrors real LMS dashboards (Canvas, Blackboard, etc.), which prominently d
 | **Styling** | `list-group` | For clear, border-separated items |
 
 
-
 ---
 
 #### Goal
