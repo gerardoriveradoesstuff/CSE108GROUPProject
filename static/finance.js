@@ -7,11 +7,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const user_id_val = document.getElementById("user-id-add").value;
         const category_id_val = document.getElementById("category-id").value;
-        //
-        // if (!user_id_val || !category_id_val) {
-        //     alert("Both user and category must be selected.");
-        //     return;
-        // }
+
+        if (!user_id_val || !category_id_val) {
+            alert("Both user and category must be selected.");
+            return;
+        }
 
         const user_id = parseInt(user_id_val, 10);
         const category_id = parseInt(category_id_val, 10);
@@ -131,44 +131,117 @@ document.addEventListener("DOMContentLoaded", () => {
     // fetchCategories();
     fetchTransactions();
     refreshCategories(); // Populate categories dropdown on page load
+});
 
+// Function to open the Edit Transaction Modal and populate fields
+function editTransaction(transaction_id) {
+    fetch(`/get-transaction/${transaction_id}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(transaction => {
+            console.log("Fetched transaction:", transaction);
 
-    async function fetchTransactions() {
-        const res = await fetch("/fetch-transactions");
-        const data = await res.json();
-        const table = document.getElementById("transactions-table").querySelector("tbody");
-        table.innerHTML = "";
-        data.forEach(tx => {
-            table.innerHTML += `
+            // Check if fields exist
+            console.log("income field:", document.getElementById("edit-income"));
+            console.log("expense field:", document.getElementById("edit-expense"));
+            // Populate the modal fields with transaction data
+            document.getElementById("edit-transaction-id").value = transaction.transaction_id;
+            document.getElementById("edit-income").value = transaction.income || 0.0;
+            document.getElementById("edit-expense").value = transaction.expense || 0.0;
+            document.getElementById("edit-category-id").value = transaction.category_id || "";
+            document.getElementById("edit-description").value = transaction.description || "";
+            document.getElementById("edit-date").value = transaction.date || "";
+
+            // Show the Bootstrap modal
+            const editModal = new bootstrap.Modal(document.getElementById("editTransactionModal"));
+            editModal.show();
+        })
+        .catch(error => {
+            console.error("Error fetching transaction details:", error);
+            alert("Failed to fetch transaction details.");
+        });
+}
+
+// Function to update the transaction
+function updateTransaction() {
+    const transaction_id = document.getElementById("edit-transaction-id").value;
+    const income = parseFloat(document.getElementById("edit-income").value) || 0;
+    const expense = parseFloat(document.getElementById("edit-expense").value) || 0;
+    const category_id = parseInt(document.getElementById("edit-category-id").value, 10);
+    const description = document.getElementById("edit-description").value;
+    const date = document.getElementById("edit-date").value;
+
+    fetch(`/update-transaction/${transaction_id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            income,
+            expense,
+            category_id,
+            description,
+            date
+        }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert("Error updating transaction: " + data.error);
+            } else {
+                alert("Transaction updated successfully.");
+                const editModal = bootstrap.Modal.getInstance(document.getElementById("editTransactionModal"));
+                editModal.hide();
+                fetchTransactions();  // Refresh the table
+            }
+        })
+        .catch(error => {
+            console.error("Update failed:", error);
+            alert("Failed to update transaction.");
+        });
+}
+
+// Function to fetch the transaction
+async function fetchTransactions() {
+    const res = await fetch("/fetch-transactions");
+    const data = await res.json();
+    const table = document.getElementById("transactions-table").querySelector("tbody");
+    table.innerHTML = "";
+    data.forEach(tx => {
+        table.innerHTML += `
             <tr>
                 <td>${tx.transaction_id}</td>
                 <td>${tx.date}</td>
                 <td>${tx.income.toFixed(2)}</td>
                 <td>${tx.expense.toFixed(2)}</td>
-                <td>${tx.user_id}</td>
                 <td>${tx.category}</td>
                 <td>${tx.description}</td>
                 <td>
+                    <button class="btn btn-sm btn-warning" onclick="editTransaction(${tx.transaction_id})">Edit</button>
                     <button class="btn btn-sm btn-danger" onclick="deleteTransaction(${tx.transaction_id})">Delete</button>
                 </td>
             </tr>`;
-        });
+    });
+}
+
+// Function to delete the transaction
+async function deleteTransaction(id) {
+    if (!confirm("Delete transaction?")) return;
+    const res = await fetch(`/delete-transaction/${id}`, {method: "DELETE"});
+    const data = await res.json();
+    if (res.ok) {
+        alert(data.message);
+        fetchTransactions();
+    } else {
+        alert(`Error: ${data.error}`);
     }
-
-    async function deleteTransaction(id) {
-        if (!confirm("Delete transaction?")) return;
-        const res = await fetch(`/delete-transaction/${id}`, {method: "DELETE"});
-        const data = await res.json();
-        if (res.ok) {
-            alert(data.message);
-            fetchTransactions();
-        } else {
-            alert(`Error: ${data.error}`);
-        }
-    }
-
-    refreshCategories();
-    fetchTransactions();
+}
 
 
-});
+
+
+

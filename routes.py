@@ -189,44 +189,44 @@ def finance_dashboard():
     return render_template('finance.html', user=current_user)
 
 
-@main.route('/add-user', methods=['POST'])
-def add_user():
-    """
-    (1) Query: Insert a new user into the User table.
-    SQL Equivalent:
-    INSERT INTO User (name, email) VALUES (:name, :email);
-    """
-    data = request.json
-    name = data.get('name')
-    email = data.get('email')
+# @main.route('/add-user', methods=['POST'])
+# def add_user():
+#     """
+#     (1) Query: Insert a new user into the User table.
+#     SQL Equivalent:
+#     INSERT INTO User (name, email) VALUES (:name, :email);
+#     """
+#     data = request.json
+#     name = data.get('name')
+#     email = data.get('email')
+#
+#     if not name or not email:
+#         return jsonify({'error': 'Name and email are required'}), 400
+#
+#     try:
+#         user = User(name=name, email=email)
+#         db.session.add(user)  # Add the user to the session
+#         db.session.commit()  # Commit the session to insert the user
+#         return jsonify({'message': 'User created', 'user_id': user.user_id}), 201
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
 
-    if not name or not email:
-        return jsonify({'error': 'Name and email are required'}), 400
-
-    try:
-        user = User(name=name, email=email)
-        db.session.add(user)  # Add the user to the session
-        db.session.commit()  # Commit the session to insert the user
-        return jsonify({'message': 'User created', 'user_id': user.user_id}), 201
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@main.route('/fetch-recent-users', methods=['GET'])
-def fetch_recent_users():
-    """
-    (2) Query: Fetch all users.
-    SQL Equivalent:
-    SELECT * FROM User;
-    """
-    try:
-        recent_users = User.query.order_by(User.user_id.desc()).limit(5).all()
-        # users = User.query.all() # use this to query all the users
-        print(f"Fetched users: {recent_users}")  # Debugging
-        result = [{'user_id': u.user_id, 'name': u.name, 'email': u.email} for u in recent_users]
-        return jsonify(result), 200
-    except Exception as e:
-        print(f"Error fetching users: {e}")  # Debugging
-        return jsonify({'error': str(e)}), 500
+# @main.route('/fetch-recent-users', methods=['GET'])
+# def fetch_recent_users():
+#     """
+#     (2) Query: Fetch all users.
+#     SQL Equivalent:
+#     SELECT * FROM User;
+#     """
+#     try:
+#         recent_users = User.query.order_by(User.user_id.desc()).limit(5).all()
+#         # users = User.query.all() # use this to query all the users
+#         print(f"Fetched users: {recent_users}")  # Debugging
+#         result = [{'user_id': u.user_id, 'name': u.name, 'email': u.email} for u in recent_users]
+#         return jsonify(result), 200
+#     except Exception as e:
+#         print(f"Error fetching users: {e}")  # Debugging
+#         return jsonify({'error': str(e)}), 500
 
 @main.route('/add-transaction', methods=['POST'])
 def add_transaction():
@@ -283,6 +283,7 @@ def add_transaction():
         return jsonify({'error': str(e)}), 500
 
 @main.route('/get-transaction/<int:transaction_id>', methods=['GET'])
+@login_required
 def get_transaction(transaction_id):
     """
     (4) Query: Fetch a transaction by ID.
@@ -293,18 +294,19 @@ def get_transaction(transaction_id):
     if not transaction:
         return jsonify({'error': 'Transaction not found'}), 404
 
-    result = {
+    result = jsonify({
         'transaction_id': transaction.transaction_id,
-        'user_id': transaction.user_id,
         'category_id': transaction.category_id,
         'income': transaction.income,
         'expense': transaction.expense,
         'description': transaction.description,
         'date': transaction.date.strftime('%Y-%m-%d'),
-    }
-    return jsonify(result), 200
+    })
+    return result, 200
+
 
 @main.route('/update-transaction/<int:transaction_id>', methods=['PUT'])
+@login_required
 def update_transaction(transaction_id):
     """
     (5) Query: Update a transaction by ID.
@@ -343,6 +345,7 @@ def update_transaction(transaction_id):
         return jsonify({'error': f'An error occurred: {str(e)}'}), 500
 
 @main.route('/delete-transaction/<int:transaction_id>', methods=['DELETE'])
+@login_required
 def delete_transaction(transaction_id):
     """
     (6) Query: Delete a transaction by ID.
@@ -358,6 +361,7 @@ def delete_transaction(transaction_id):
     return jsonify({'message': 'Transaction deleted successfully'}), 200
 
 @main.route('/fetch-transactions', methods=['GET', 'POST'])
+@login_required
 def fetch_transactions():
     """
     (7) Query:
