@@ -84,7 +84,6 @@ Enable teachers to:
   - Teachers assign deadlines to courses
   - Students only view deadlines associated with their enrolled courses
 
-
 #### `student_dashboard()` in `routes.py`
 
 
