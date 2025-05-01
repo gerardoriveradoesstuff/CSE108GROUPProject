@@ -1,12 +1,12 @@
 # ✅ Feature 1: Sidebar Navigation
-#### Why this feature?
+## ❓Why this feature?
 Dashboard benefit from **persistent and global navigation** that:
 - Organizes key areas like courses, grades, and profile into consistent structure
 - Reduces cognitive load by letting users (students) access sections without searching. 
 Giving a more naturally learned (intuitive) experience
 - Matches mental models of platforms like Canvas.
 
-#### Design rationale
+## ❓Design rationale
 We use a **left sidebar** layout because:
 - most users are right-handed (and right-eye dominant), which makes vertical
 navigation easier to scan on the left.
@@ -16,7 +16,7 @@ quick to implement. Given the quick turnaround required for this project.
 
 
 # ✅ Feature 2: Profile Summary Banner
-#### Why This Feature?
+## ❓Why This Feature?
 A profile banner serves as a personalization anchor for the student’s dashboard. It:
 
 This will:
@@ -28,13 +28,12 @@ This will:
 - Mirrors real dashboards (Canvas, Blackboard, etc.)
 - This is a top-level visual block placed above or near the dashboard greeting.
 
-Great! Let’s move on to **Feature 3: Upcoming Deadlines Widget**.
 
 ---
 
 # ✅ Feature 3: Upcoming Deadlines Panel
 
-#### Why Add This?
+## ❓Why Add This?
 A dashboard should answer this question at a glance:
 > *“What do I need to focus on right now?”*
 
@@ -74,15 +73,15 @@ Enable teachers to:
 # ✅ Feature 4 :Teacher Dashboard
 ### Design Motivation and Layout Rationale
 
-### Why this makes sense:
+## ❓Why this makes sense:
 - **Teachers assign deadlines** in real life (not students).
 - Students shouldn't be responsible for tracking deadlines manually — this promotes consistency and prevents confusion.
 
-### Why we store it this way:
+## ❓Why we store it this way:
 - **Deadlines are linked to a course and a teacher** — each deadline belongs to one course, and indirectly to its enrolled students.
 - We link it to the **User (teacher)** who created it, and also store the **course_id** for student visibility.
 
-### Why organize data this way:
+## ❓Why organize data this way:
 - This keeps things **normalized**:
   - Courses are central
   - Teachers assign deadlines to courses
@@ -111,7 +110,7 @@ def student_dashboard():
     return render_template("student_dashboard.html", user=user, all_courses=all_courses, deadlines=deadlines)
 ```
 
-### Why this organization?
+## ❓Why this organization?
 - Keeps `User` focused on enrollment
 - Deadlines are fetched via a **one-time filter** using the `course_id` values
 - This pattern **separates logic**: `user.courses_enrolled` handles relationships, and `Deadline.query.filter()` does the temporal filtering
@@ -159,20 +158,18 @@ def student_dashboard():
 
 ----
 
-# ✅ Feature 5: Upcoming Deadlines Panel
+# ✅ Feature 6: Student Expense
 
-Here is a clear summary that answers all your design reflection questions using the merged logic from your current app and the previous explanation:
 
 ---
 
-## ✅ Application Design Summary
 
-### ❓**How did you lay out the ideas?**
+## ❓**How did you lay out the ideas?**
 The application is built around a central `User` model that links to financial models like `Transaction`, `Category`, and `Report` through foreign key relationships. Instead of requiring duplicate user data for the finance module, the user is authenticated once and used throughout the app via `current_user`.
 
 ---
 
-### 🎯 **How did you motivate your design?**
+## ❓**How did you motivate your design?**
 
 - **Efficiency**: Avoid redundant data entry — once a user logs in, they shouldn't have to add themselves again.
 - **Clarity**: Prevent confusion by hiding UI elements (like the "Add User" form) that no longer apply.
@@ -180,7 +177,7 @@ The application is built around a central `User` model that links to financial m
 
 ---
 
-### 🧱 **Why does it look like this?**
+## ❓**Why does it look like this?**
 
 The interface uses **Bootstrap cards** to visually separate core functions: user creation, category management, transactions, and reports. This layout makes the UI:
 
@@ -192,7 +189,7 @@ Forms like "Add User" are conditionally rendered so they only appear when truly 
 
 ---
 
-### 🧩 **Why did you organize your data this way?**
+## ❓**Why did you organize your data this way?**
 
 The data is organized relationally:
 - `User` is a single source of truth.
@@ -202,7 +199,7 @@ This avoids duplication, reduces errors, and supports **relational integrity** �
 
 ---
 
-### 📦 **Why did you store it this way?**
+## ❓**Why did you store it this way?**
 
 Using foreign keys (`user_id`) instead of embedding user details in every transaction:
 - Saves space
@@ -213,7 +210,7 @@ This reflects standard database normalization principles.
 
 ---
 
-### 🔁 **Why did you make routing look like this?**
+## ❓**Why did you make routing look like this?**
 
 ```python
 @main.route('/finance')
@@ -228,7 +225,7 @@ def finance_dashboard():
 
 ---
 
-### 💬 **Does that make sense?**
+## ❓**Does that make sense?**
 
 Yes:
 - No duplicate models
@@ -238,17 +235,16 @@ Yes:
 
 ---
 
-
 ## ▶️ FRONTEND DESIGN
 
-#### Bootstrap styling
+# Bootstrap styling
 
 A structure like `<h3 class="h5 mt-4 mb-2">...</h3>` (e.g. bootstrap is good for the 
 DOM and application design **because it separates concerns cleanly and promotes scalable, maintainable code**. 
 
----
 
-#### Why does it look like this?
+
+## ❓Why does it look like this?
 
 It looks like this to **visually style** an `<h3>` element with the 
 appearance of an `<h5>`, while keeping semantic HTML intact. 
@@ -256,35 +252,31 @@ This allows screen readers, and accessibility tools to understand the content
 hierarchy properly (`<h3>` is semantically different from `<h5>`), 
 **but visually render it in a compact, styled way** using the `.h5` class.
 
----
 
-#### How is the design motivated?
+## ❓How is the design motivated?
 
 The design is motivated by:
 - **Semantic correctness**: Keeping heading levels in logical order (`<h1>` → `<h2>` → `<h3>`, etc.)
 - **Visual flexibility**: Using utility classes like `mt-4`, `mb-2`, and `h5` gives fine-grained control over margins and text appearance **without needing custom CSS**.
 
----
 
-#### Why organize the data this way?
+## ❓Why organize the data this way?
 
 By using **utility classes** from a framework (Bootstrap), layout and spacing are:
 - **Predictable** (consistent margins across elements)
 - **Composable** (you can add/remove utility classes as needed)
 - **Efficient** (no need to define new CSS rules for every case)
 
----
 
-#### Why store it this way?
+## ❓Why store it this way?
 
 The structure stores styling *in class names*, not in inline styles or separate files. This:
 - Keeps the HTML readable
 - Avoids bloated CSS
 - Makes it easy to adjust spacing or text size by swapping class names
 
----
 
-#### Why does routing or structure matter here?
+## ❓Why does routing or structure matter here?
 
 Though not directly about routing, the **hierarchical use of headings** (e.g., `<h3>`) helps build a DOM structure that’s logical for both:
 - **Human readers** (visual hierarchy)
