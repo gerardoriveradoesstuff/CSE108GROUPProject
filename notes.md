@@ -14,7 +14,6 @@ navigation easier to scan on the left.
 - Responsive frameworks (e.g. Bootstrap) support this structure well and are
 quick to implement. Given the quick turnaround required for this project.
 
-
 # ✅ Feature 2: Profile Summary Banner
 ## ❓Why This Feature?
 A profile banner serves as a personalization anchor for the student’s dashboard. It:
@@ -27,7 +26,6 @@ This will:
 - Summarizes key info without diving into deeper pages
 - Mirrors real dashboards (Canvas, Blackboard, etc.)
 - This is a top-level visual block placed above or near the dashboard greeting.
-
 
 ---
 
