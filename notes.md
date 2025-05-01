@@ -154,7 +154,7 @@ def student_dashboard():
 
 ----
 
-# ✅ Feature 6: Student Expense
+# ✅ Feature 5: Student Expense
 
 
 ---
