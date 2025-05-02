@@ -25,20 +25,28 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const response = await fetch(url);
             const data = await response.json();
+            // console.log("API data received:", data);
 
             newsContainer.innerHTML = "";
 
             if (data.organic_results && data.organic_results.length > 0) {
                 data.organic_results.forEach(result => {
                     const card = document.createElement("div");
-                    // identifier for specific card
                     card.className = "mb-4";
-                   // IF all that, then inject the content into container
+
+                    const title = result.title || "No title";
+                    const link = result.link || "#";
+                    const snippet = result.snippet || "No summary available.";
+                    const publication = result.publication_info?.summary || "Unknown source";
+
+                    card.className = "card mb-3 p-3 border shadow-sm";
                     card.innerHTML = `
-                        <h6><a href="${result.link}" target="_blank" class="text-decoration-none">${result.title}</a></h6>
-                        <p class="small text-muted">${result.publication || "Unknown Source"}</p>
-                        <p class="small">${result.snippet || ""}</p>
+                        <h6><a href="${link}" target="_blank" class="text-decoration-none">${title}</a></h6>
+                        <p class="small text-muted">${publication}</p>
+                        <p class="small">${snippet}</p>
                     `;
+
+
                     newsContainer.appendChild(card);
                 });
             } else {
