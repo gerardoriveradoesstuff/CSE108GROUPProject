@@ -27,8 +27,8 @@
                     <h5 class="sidebar-header px-3">🎓 UCM University</h5>
                     <ul class="nav flex-column">
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.student_dashboard') }}">🏠 Dashboard</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">👤 Profile</a></li>
-                        <li class="nav-item"><a class="nav-link active" href="#">📚 My Courses</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.profile') }}">👤 Profile</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="{{ url_for('main.my_courses') }}">📚 My Courses</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.finance_dashboard') }}">💲 My Expenses</a></li>
                         <li class="nav-item"><a class="nav-link signout-link" href="{{ url_for('main.logout') }}">🚪 Sign out</a></li>
                     </ul>
@@ -65,7 +65,7 @@
 
                 <!-- Enrolled Courses -->
                 <h3 class="h5 mt-4 mb-2">Your Enrolled Courses</h3>
-                <table class="table table-bordered table-striped">
+                <table class="table table-striped table-hover">
                     <thead class="thead-light">
                         <tr>
                             <th>Course Name</th>
@@ -90,7 +90,7 @@
 
                 <!-- Available Courses -->
                 <h3 class="h5 mt-4 mb-2">Available Courses</h3>
-                <table class="table table-bordered table-striped">
+                <table class="table table-striped table-hover">
                     <thead class="thead-light">
                         <tr>
                             <th>Course Name</th>
