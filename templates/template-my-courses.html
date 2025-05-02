@@ -17,7 +17,7 @@
 
 </head>
 <body>
-{% include "theme.html" %}
+{% include "template-theme.html" %}
 
     <div class="container-fluid">
         <div class="row">
@@ -29,12 +29,12 @@
                         <li class="nav-item"><a class="nav-link active" href="{{ url_for('main.student_dashboard') }}">🏠 Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">👤 Profile</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">📚 My Courses</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">📊 Grades</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.finance_dashboard') }}">💲Student Expenses</a></li>
                         <li class="nav-item"><a class="nav-link signout-link" href="{{ url_for('main.logout') }}">🚪 Sign out</a></li>
                     </ul>
-                    {% include "upcoming_deadlines.html" %}
-                    {% include "announcements.html" %}
+                    {% include "template-upcoming-deadlines.html" %}
+                    {% include "template-announcements.html" %}
+                    {% include "template-gpa-calculator.html" %}
                 </div>
             </nav>
 
