@@ -20,8 +20,14 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(128), nullable=False)
     role = db.Column(db.String(10), nullable=False)  # 'student' or 'teacher'
 
-    # Profile fields for finance module
+    # Profile fields
     email = db.Column(db.String(100), nullable=False, unique=True)
+    major = db.Column(db.String(100))
+    year = db.Column(db.String(10))
+    GPA = db.Column(db.Float)
+    bio = db.Column(db.Text)
+    linkedin_url = db.Column(db.String(255))
+    pronunciation = db.Column(db.String(100))
 
     # Relationships
     courses_enrolled = db.relationship('Course', secondary=enrollments, backref='students')
