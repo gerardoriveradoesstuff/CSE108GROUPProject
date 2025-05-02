@@ -66,28 +66,22 @@ def logout():
 @main.route("/student")
 @login_required
 def student_dashboard():
+    # this is lazy-loading. Didn't work because
+    # current_user (student) is passed directly into templates. The session closes before the template tries to access it
+    # all_courses = Course.query.all()
+    # return render_template("student_dashboard.html", user=current_user, all_courses=all_courses)
+    # re-fetch the user with all relationships eagerly loaded
 
-    """
-    Why this organization?
-    Keeps User focused on enrollment
-    Deadlines are fetched via a one-time filter using the course_id values
-    This pattern separates logic: user.courses_enrolled handles relationships, and Deadline.query.filter() does the temporal filtering
+    user = User.query.options(joinedload(User.courses_enrolled).joinedload(Course.teacher)).get(current_user.id)
+    return render_template("student_dashboard.html", user=user)
 
-    """
-    user = User.query.options(
-        joinedload(User.courses_enrolled).joinedload(Course.teacher)
-    ).get(current_user.id)
 
+@main.route("/my_courses", methods=["GET"])
+@login_required
+def my_courses():
+    user = User.query.options(joinedload(User.courses_enrolled).joinedload(Course.teacher)).get(current_user.id)
     all_courses = Course.query.all()
-
-    # Get all deadlines where the course is one the student is enrolled in
-    course_ids = [course.id for course in user.courses_enrolled]
-    deadlines = Deadline.query.filter(Deadline.course_id.in_(course_ids)).all()
-
-    return render_template("student_dashboard.html", user=user, all_courses=all_courses, deadlines=deadlines)
-
-
-
+    return render_template("my_courses.html", user=user, all_courses=all_courses)
 @main.route("/student/add/<int:course_id>", methods=["POST"])
 @login_required
 def add_course(course_id):
