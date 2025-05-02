@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="card-body d-flex align-items-center">
+    <img src="https://upload.wikimedia.org/wikipedia/en/thumb/e/ea/McGonagall_%28screenshot%29.jpg/250px-McGonagall_%28screenshot%29.jpg"
+         alt="Profile Picture" class="rounded-circle me-3"
+         width="64" height="64">
+    <div method="GET" action="{{ url_for('main.profile') }}">
+        <p class="mb-1">Major: {{ user.major or 'None' }}</p>
+        <p class="mb-1">Expected Graduation Year: {{ user.year or 'None' }}</p>
+
+    </div>
+    <!--                    &lt;!&ndash; Optional: Add a link to Profile &ndash;&gt;-->
+    <!--                    <div class="ms-auto">-->
+    <!--                        <a href="#" class="btn btn-sm btn-outline-secondary">Edit Profile</a>-->
+    <!--                    </div>-->
+</div>
+</body>
+</html>

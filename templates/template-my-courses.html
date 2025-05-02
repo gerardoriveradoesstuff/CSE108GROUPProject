@@ -43,22 +43,7 @@
 
                 <!-- PROFILE BANNER -->
                 <div class="card mb-4 shadow-sm">
-                    <div class="card-body d-flex align-items-center">
-                        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/e/ea/McGonagall_%28screenshot%29.jpg/250px-McGonagall_%28screenshot%29.jpg" alt="Profile Picture" class="rounded-circle me-3"
-                             width="64" height="64">
-                        <div>
-                            <h5 class="card-title mb-1">{{ user.username.capitalize() }}</h5>
-                            <p class="card-text mb-0">
-                                Major: {{ user.major }} <br>
-                                GPA: {{ user.GPA }} <br>
-                                Expect Graduation Year: {{ user.year }}
-                            </p>
-                        </div>
-<!--                        &lt;!&ndash; Optional: Add a link to settings &ndash;&gt;-->
-<!--                        <div class="ms-auto">-->
-<!--                            <a href="#" class="btn btn-sm btn-outline-secondary">Edit Profile</a>-->
-<!--                        </div>-->
-                    </div>
+                    {% include "template-profile-banner.html" %}
                 </div>
 
                 <h2 class="h3 mb-3">Welcome {{ user.username.capitalize() }}</h2>

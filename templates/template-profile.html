@@ -87,8 +87,17 @@
                     </div>
 
                     <div class="text-end mb-4">
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="submit" class="btn btn-primary" onclick="profile_">Save Changes</button>
                     </div>
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    <ul>
+                        {% for message in messages %}
+                        <li style="color:red;">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% endwith %}
                 </div>
             </form>
         </main>

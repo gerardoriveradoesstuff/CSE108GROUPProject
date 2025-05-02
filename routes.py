@@ -133,7 +133,6 @@ def scholar_proxy():
     response = requests.get(serpapi_url, params=params)
     return jsonify(response.json())
 
-
 @main.route("/scholar")
 @login_required
 def scholar_feed():
@@ -143,7 +142,7 @@ def scholar_feed():
 @main.route("/profile", methods=["GET", "POST"])
 @login_required
 def profile():
-    user = current_user
+    user = User.query.get(current_user.id)
     if request.method == 'POST':
         # Update user profile
         user.bio = request.form.get('bio')
@@ -154,6 +153,7 @@ def profile():
 
         try:
             db.session.commit()
+            db.session.refresh(user)  # force refresh from DB
             flash("Profile updated successfully!", "success")
         except Exception as e:
             db.session.rollback()
@@ -167,11 +167,10 @@ def profile():
 
 
 @main.route("/profile_banner", methods=["GET", "POST"])
-@main.route("/profile_banner/<int:user_id>", methods=["GET", "POST"])
 @login_required
 def profile_banner(user_id=None):
     # Load current user, or another user's profile if user_id is given (admin use case)
-    user = User.query.get(user_id) if user_id else current_user
+    user = User.query.get(current_user.id)
 
     if request.method == "POST":
         # Get form inputs
