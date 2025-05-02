@@ -78,12 +78,14 @@ def student_dashboard():
 @main.route("/profile" , methods=["GET", "POST"])
 @login_required
 def profile():
-    user = User.query.options(joinedload(User.courses_enrolled).joinedload(Course.teacher)).get(current_user.id)
+    user = current_user
     if request.method == 'POST':
         # Update user profile
         user.bio = request.form.get('bio')
         user.linkedin_url = request.form.get('linkedin_url')
         user.pronunciation = request.form.get('pronunciation')
+        user.major = request.form.get('major')
+        user.year = request.form.get('year')
 
         try:
             db.session.commit()
@@ -93,9 +95,40 @@ def profile():
             flash("An error occurred while updating your profile.", "danger")
 
         return redirect(url_for('main.profile'))
+
         # Eagerly load user with enrolled courses
 
     return render_template('template-profile.html', user=user)
+
+@main.route("/profile_banner", methods=["GET", "POST"])
+@main.route("/profile_banner/<int:user_id>", methods=["GET", "POST"])
+@login_required
+def profile_banner(user_id=None):
+    # Load current user, or another user's profile if user_id is given (admin use case)
+    user = User.query.get(user_id) if user_id else current_user
+
+    if request.method == "POST":
+        # Get form inputs
+        major = request.form.get("major")
+        year = request.form.get("year")
+
+        # Update user fields
+        if major:
+            user.major = major
+        if year:
+            user.year = year
+
+        try:
+            db.session.commit()
+            flash("Profile banner updated successfully!", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash("Error updating profile banner.", "danger")
+
+        return redirect(url_for('main.profile_banner', user_id=user_id) if user_id else url_for('main.profile_banner'))
+
+    return render_template("template-profile-banner.html", user=user)
+
 
 @main.route("/my_courses", methods=["GET"])
 @login_required
