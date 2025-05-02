@@ -5,16 +5,21 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const apiKey = "YOUR_SERPAPI_API_KEY"; // Replace this
+        const apiKey = "e0100edc7eec7c730ab914cb6f2050e251ed0c270a5b8060dbbc22519d22ee8c"; // Replace this
+        // QUERY THE API
         const query = document.getElementById("query").value.trim();
+        // YEAR LOW
         const as_ylo = document.getElementById("from-year").value;
+        // YEAR HIGH
         const as_yhi = document.getElementById("to-year").value;
 
-        let url = `https://serpapi.com/search.json?engine=google_scholar&q=${encodeURIComponent(query)}&num=5&api_key=${apiKey}`;
+        let url = `/api/scholar?q=${encodeURIComponent(query)}&as_ylo=${as_ylo}&as_yhi=${as_yhi}`;
+
 
         if (as_ylo) url += `&as_ylo=${as_ylo}`;
         if (as_yhi) url += `&as_yhi=${as_yhi}`;
 
+        // IF all that, then inject the content into container
         newsContainer.innerHTML = "<p>Loading articles...</p>";
 
         try {
@@ -26,8 +31,9 @@ document.addEventListener("DOMContentLoaded", () => {
             if (data.organic_results && data.organic_results.length > 0) {
                 data.organic_results.forEach(result => {
                     const card = document.createElement("div");
+                    // identifier for specific card
                     card.className = "mb-4";
-
+                   // IF all that, then inject the content into container
                     card.innerHTML = `
                         <h6><a href="${result.link}" target="_blank" class="text-decoration-none">${result.title}</a></h6>
                         <p class="small text-muted">${result.publication || "Unknown Source"}</p>
