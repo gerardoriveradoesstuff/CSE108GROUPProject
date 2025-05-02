@@ -37,10 +37,10 @@ function renderCourses() {
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <strong>${c.courseName}</strong><br>
-                    <small>Grade: ${c.grade}, Credits: ${c.credits}</small>
+                    <small>Grade: ${c.grade} Credits: ${c.credits}</small>
                 </div>
                 <div class="d-flex flex-column ms-2">
-                    <button class="btn btn-outline-primary btn-sm py-0 px-1 mb-1" title="Edit" onclick="editCourse(${index})">✏️</button>
+                    <button class="btn btn-outline-primary btn-sm py-0 px-1 mt-4 mb-1" title="Edit" onclick="editCourse(${index})">✏️</button>
                     <button class="btn btn-outline-danger btn-sm py-0 px-1" title="Remove" onclick="deleteCourse(${index})">❌</button>
                 </div>
             </div>
