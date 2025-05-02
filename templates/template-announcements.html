@@ -7,7 +7,6 @@
         {% for announcement in announcements %}
         <li class="list-group-item d-flex justify-content-between align-items-center">
             <div>
-                <!--                                This uses the course relationship, so don’t need course_name in the model anymore.-->
                 <strong>{{ announcement.course.name }}</strong><br>
                 <span class="text-muted small">{{ announcement.assignment }} — {{ announcement.due_date }}</span>
             </div>
@@ -17,4 +16,4 @@
         <li class="list-group-item text-muted">No upcoming announcements.</li>
         {% endif %}
     </ul>
-
+</div>
