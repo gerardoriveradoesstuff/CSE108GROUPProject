@@ -2,6 +2,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_user, login_required, logout_user, current_user
 from forms import LoginForm, RegisterForm
+import requests
 
 # security imports
 from werkzeug.security import generate_password_hash
@@ -31,9 +32,9 @@ def register():
 
         new_user = User(
             username=form.username.data,
-            password=hashed_password,   # set the hashed password here
+            password=hashed_password,  # set the hashed password here
             role=form.role.data,
-            email = form.email.data
+            email=form.email.data
         )
         db.session.add(new_user)
         db.session.commit()
@@ -57,11 +58,13 @@ def login():
         flash("Invalid credentials")
     return render_template("template-login.html", form=form)
 
+
 @main.route("/logout")
 @login_required
 def logout():
     logout_user()
     return redirect(url_for("main.login"))
+
 
 @main.route("/student")
 @login_required
@@ -72,10 +75,72 @@ def student_dashboard():
     # return render_template("template-student-dashboard.html", user=current_user, all_courses=all_courses)
     # re-fetch the user with all relationships eagerly loaded
 
-    user = User.query.options(joinedload(User.courses_enrolled).joinedload(Course.teacher)).get(current_user.id)
+    user = User.query.options(
+        joinedload(User.courses_enrolled)
+        .joinedload(Course.teacher),
+        joinedload(User.courses_enrolled)
+        .joinedload(Course.deadlines)
+    ).get(current_user.id)
     return render_template("template-student-dashboard.html", user=user)
 
-@main.route("/profile" , methods=["GET", "POST"])
+@main.context_processor
+def inject_deadlines():
+    """
+    a context processor that makes deadlines available in every template.
+    :return:
+    """
+    if current_user.is_authenticated and current_user.role == "student":
+        user = User.query.options(
+            joinedload(User.courses_enrolled).joinedload(Course.deadlines)
+        ).get(current_user.id)
+
+        upcoming = []
+        for course in user.courses_enrolled:
+            upcoming.extend(course.deadlines)
+
+        return dict(deadlines=upcoming)
+    return dict(deadlines=[])
+
+
+@main.route("/api/scholar")
+def scholar_proxy():
+    api_key = "e0100edc7eec7c730ab914cb6f2050e251ed0c270a5b8060dbbc22519d22ee8c"
+    query = request.args.get("q", "")
+    as_ylo = request.args.get("as_ylo", "")
+    as_yhi = request.args.get("as_yhi", "")
+
+    params = {
+        "engine": "google_scholar",
+        "q": query,
+        "num": "5",
+        "api_key": api_key,
+    }
+    if as_ylo:
+        params["as_ylo"] = as_ylo
+    if as_yhi:
+        params["as_yhi"] = as_yhi
+
+    serpapi_url = "https://serpapi.com/search.json"
+    """
+    WHY REQUESTS() VS REQUEST() in other routes:
+    In Flask, the request object is only used to handle incoming 
+    HTTP requests made by a client (like a web browser or frontend JavaScript).
+    
+    But the SerpAPI fetch is an outgoing HTTP request to an external API (https://serpapi.com). 
+    Flask doesn't include a built-in HTTP client to make external calls
+    """
+    #         |---V---|
+    response = requests.get(serpapi_url, params=params)
+    return jsonify(response.json())
+
+
+@main.route("/scholar")
+@login_required
+def scholar_feed():
+    return render_template("template-google-scholar.html")
+
+
+@main.route("/profile", methods=["GET", "POST"])
 @login_required
 def profile():
     user = current_user
@@ -99,6 +164,7 @@ def profile():
         # Eagerly load user with enrolled courses
 
     return render_template('template-profile.html', user=user)
+
 
 @main.route("/profile_banner", methods=["GET", "POST"])
 @main.route("/profile_banner/<int:user_id>", methods=["GET", "POST"])
@@ -164,6 +230,7 @@ def add_course(course_id):
 
     return redirect(url_for("main.my_courses"))
 
+
 @main.route("/student/drop/<int:course_id>", methods=["POST"])
 @login_required
 def drop_course(course_id):
@@ -174,12 +241,17 @@ def drop_course(course_id):
         db.session.commit()
     return redirect(url_for("main.my_courses"))
 
+
 @main.route("/teacher")
 @login_required
 def teacher_dashboard():
-    user = User.query.options(joinedload(User.courses_enrolled).joinedload(Course.teacher)).get(current_user.id)
-    all_courses = Course.query.all()
-    return render_template("template-teacher-dashboard.html", user=user, all_courses=all_courses)
+    user = User.query.options(
+        joinedload(User.courses_taught)
+        .joinedload(Course.deadlines),
+        joinedload(User.courses_taught)
+        .joinedload(Course.teacher)
+    ).get(current_user.id)
+    return render_template("template-teacher-dashboard.html", user=user)
 
 
 @main.route("/teacher/course/<int:course_id>", methods=["GET", "POST"])
@@ -201,16 +273,13 @@ def class_detail(course_id):
         db.session.commit()
         return redirect(url_for("main.class_detail", course_id=course_id))
 
-    return render_template("template-class-detail.html", course=course, students=students, grades=grades, user=current_user)
+    return render_template("template-class-detail.html", course=course, students=students, grades=grades,
+                           user=current_user)
 
-
-# def get_current_user_with_courses():
-#     return User.query.options(joinedload(User.courses_enrolled).joinedload(Course.teacher)).get(current_user.id)
 
 @main.route("/teacher/course/<int:course_id>/add_deadline", methods=["GET", "POST"])
 @login_required
 def add_deadline(course_id):
-
     """
     /teacher/course/<id>/add_deadline is intuitive and RESTful: modifying a course sub-resource.
     :param course_id:
@@ -233,53 +302,46 @@ def add_deadline(course_id):
             db.session.add(deadline)
             db.session.commit()
             flash("Deadline added successfully!")
-            return redirect(url_for("main.class_detail", course_id=course.id))
+            return redirect(url_for("main.teacher_dashboard"))
 
     return render_template("template-add-deadline.html", course=course)
 
+
+# @main.route("/teacher/course/<int:course_id>/add_announcement", methods=["GET", "POST"])
+# @login_required
+# def add_announcment(course_id):
+#     """
+#     /teacher/course/<id>/add_deadline is intuitive and RESTful: modifying a course sub-resource.
+#     :param course_id:
+#     :return:
+#     """
+#     course = Course.query.get(course_id)
+#
+#     # Route guards (course.teacher_id != current_user.id) enforce security so only the correct teacher can access it.
+#     # Verify the teacher owns the course
+#     if course.teacher_id != current_user.id:
+#         flash("You do not have permission to add a deadline to this course.")
+#         return redirect(url_for('main.teacher_dashboard'))
+#
+#     if request.method == "POST":
+#         assignment = request.form.get("announcment")
+#         published = request.form.get("due-date")
+#
+#         if assignment and published:
+#             deadline = Deadline(assignment=assignment, due_date=published, course_id=course.id, user_id=current_user.id)
+#             db.session.add(deadline)
+#             db.session.commit()
+#             flash("Announcement added successfully!")
+#             return redirect(url_for("main.class_detail", course_id=course.id))
+#
+#     return render_template("template-add-deadline.html", course=course)
+#
 
 @main.route('/finance')
 def finance_dashboard():
     return render_template('template-finance.html', user=current_user)
 
-# @main.route('/add-user', methods=['POST'])
-# def add_user():
-#     """
-#     (1) Query: Insert a new user into the User table.
-#     SQL Equivalent:
-#     INSERT INTO User (name, email) VALUES (:name, :email);
-#     """
-#     data = request.json
-#     name = data.get('name')
-#     email = data.get('email')
-#
-#     if not name or not email:
-#         return jsonify({'error': 'Name and email are required'}), 400
-#
-#     try:
-#         user = User(name=name, email=email)
-#         db.session.add(user)  # Add the user to the session
-#         db.session.commit()  # Commit the session to insert the user
-#         return jsonify({'message': 'User created', 'user_id': user.user_id}), 201
-#     except Exception as e:
-#         return jsonify({'error': str(e)}), 500
 
-# @main.route('/fetch-recent-users', methods=['GET'])
-# def fetch_recent_users():
-#     """
-#     (2) Query: Fetch all users.
-#     SQL Equivalent:
-#     SELECT * FROM User;
-#     """
-#     try:
-#         recent_users = User.query.order_by(User.user_id.desc()).limit(5).all()
-#         # users = User.query.all() # use this to query all the users
-#         print(f"Fetched users: {recent_users}")  # Debugging
-#         result = [{'user_id': u.user_id, 'name': u.name, 'email': u.email} for u in recent_users]
-#         return jsonify(result), 200
-#     except Exception as e:
-#         print(f"Error fetching users: {e}")  # Debugging
-#         return jsonify({'error': str(e)}), 500
 
 @main.route('/add-transaction', methods=['POST'])
 def add_transaction():
@@ -317,7 +379,6 @@ def add_transaction():
         if user_id is None or category_id is None:
             return jsonify({'error': 'Missing user_id or category_id'}), 400
 
-
         # Create a new transaction
         transaction = Transaction(
             user_id=user_id,
@@ -334,6 +395,7 @@ def add_transaction():
         return jsonify({'message': 'Transaction added successfully'}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @main.route('/get-transaction/<int:transaction_id>', methods=['GET'])
 @login_required
@@ -397,6 +459,7 @@ def update_transaction(transaction_id):
     except Exception as e:
         return jsonify({'error': f'An error occurred: {str(e)}'}), 500
 
+
 @main.route('/delete-transaction/<int:transaction_id>', methods=['DELETE'])
 @login_required
 def delete_transaction(transaction_id):
@@ -412,6 +475,7 @@ def delete_transaction(transaction_id):
     db.session.delete(transaction)
     db.session.commit()
     return jsonify({'message': 'Transaction deleted successfully'}), 200
+
 
 @main.route('/fetch-transactions', methods=['GET', 'POST'])
 @login_required
@@ -464,6 +528,7 @@ def fetch_transactions():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @main.route('/add-category', methods=['POST'])
 def add_category():
     """
@@ -497,6 +562,7 @@ def add_category():
         print(f"Error adding category: {e}")  # Debugging: Logs any error encountered
         return jsonify({'error': str(e)}), 500
 
+
 @main.route('/fetch-categories', methods=['GET'])
 def fetch_categories():
     """
@@ -510,6 +576,7 @@ def fetch_categories():
         return jsonify(result), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @main.route('/generate-report', methods=['POST'])
 def generate_report():
