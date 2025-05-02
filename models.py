@@ -51,7 +51,7 @@ class Grade(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
-    grade = db.Column(db.Integer)
+    grade = db.Column(db.String(2), nullable=False)
 
 
 class Deadline(db.Model):

@@ -80,8 +80,12 @@ def student_dashboard():
 @login_required
 def my_courses():
     all_courses = Course.query.all()
+    # Map course_id to grade for current student
     user = User.query.options(joinedload(User.courses_enrolled).joinedload(Course.teacher)).get(current_user.id)
-    return render_template("template-my-courses.html", user=user, all_courses=all_courses)
+    grade_map = {
+        g.course_id: g.grade for g in Grade.query.filter_by(student_id=user.id).all()
+    }
+    return render_template("template-my-courses.html", user=user, all_courses=all_courses, grade_map=grade_map)
 
 
 
@@ -140,7 +144,7 @@ def class_detail(course_id):
                 if not grade:
                     grade = Grade(student_id=student.id, course_id=course_id)
                     db.session.add(grade)
-                grade.grade = int(grade_val)
+                grade.grade = str(grade_val)
         db.session.commit()
         return redirect(url_for("main.class_detail", course_id=course_id))
 
@@ -184,7 +188,6 @@ def add_deadline(course_id):
 @main.route('/finance')
 def finance_dashboard():
     return render_template('template-finance.html', user=current_user)
-
 
 # @main.route('/add-user', methods=['POST'])
 # def add_user():

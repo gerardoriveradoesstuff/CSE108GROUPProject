@@ -72,15 +72,17 @@
                             <th>Teacher</th>
                             <th>Time</th>
                             <th>Students Enrolled</th>
+                            <th>Grade</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for course in user.courses_enrolled %}
+                        {% for course in user.courses_enrolled%}
                         <tr>
                             <td>{{ course.name }}</td>
                             <td>{{ course.teacher.username }}</td>
                             <td>{{ course.time }}</td>
                             <td>{{ course.students|length }}/{{ course.capacity }}</td>
+                            <td>{{ grade_map[course.id] if course.id in grade_map else 'N/A' }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -122,9 +124,6 @@
                         {% endfor %}
                     </tbody>
                 </table>
-
-                <!-- Test Bootstrap Button -->
-                <button class="btn btn-primary mt-4">Test Button</button>
             </main>
         </div>
     </div>

@@ -28,9 +28,8 @@
                 <tr>
                     <td>{{ student.username }}</td>
                     <td>
-                        <input type="number" name="grade_{{ student.id }}"
-                               value="{{ grades.get(student.id).grade if grades.get(student.id) else '' }}"
-                               min="0" max="100" required>
+                        <input type="string" name="grade_{{ student.id }}"
+                               value="{{ grades.get(student.id).grade if grades.get(student.id) else '' }}" required>
                     </td>
                 </tr>
                 {% endfor %}
