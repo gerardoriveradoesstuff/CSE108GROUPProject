@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!-- Enrolled Courses -->
+<h3 class="h5 mt-4 mb-2">Your Enrolled Courses</h3>
+<table class="table table-bordered table-striped">
+    <thead class="thead-light">
+    <tr>
+        <th>Course Name</th>
+        <th>Teacher</th>
+        <th>Time</th>
+        <th>Students Enrolled</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for course in user.courses_enrolled %}
+    <tr>
+        <td>{{ course.name }}</td>
+        <td>{{ course.teacher.username }}</td>
+        <td>{{ course.time }}</td>
+        <td>{{ course.students|length }}/{{ course.capacity }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<!-- Available Courses -->
+<h3 class="h5 mt-4 mb-2">Available Courses</h3>
+<table class="table table-bordered table-striped">
+    <thead class="thead-light">
+    <tr>
+        <th>Course Name</th>
+        <th>Teacher</th>
+        <th>Time</th>
+        <th>Students Enrolled</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for course in all_courses %}
+    <tr>
+        <td>{{ course.name }}</td>
+        <td>{{ course.teacher.username }}</td>
+        <td>{{ course.time }}</td>
+        <td>{{ course.students|length }}/{{ course.capacity }}</td>
+        <td class="text-center">
+            {% if course in user.courses_enrolled %}
+            <form method="POST" action="{{ url_for('main.drop_course', course_id=course.id) }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger" title="Drop Course">➖</button>
+            </form>
+            {% elif course.students|length < course.capacity %}
+            <form method="POST" action="{{ url_for('main.add_course', course_id=course.id) }}">
+                <button type="submit" class="btn btn-sm btn-outline-success" title="Add Course">➕</button>
+            </form>
+            {% else %}
+            <span class="text-muted" title="Class Full">❌</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>
