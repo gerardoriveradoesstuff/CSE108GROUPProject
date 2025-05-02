@@ -80,8 +80,7 @@ def student_dashboard():
 @login_required
 def my_courses():
     user = User.query.options(joinedload(User.courses_enrolled).joinedload(Course.teacher)).get(current_user.id)
-    all_courses = Course.query.all()
-    return render_template("my_courses.html", user=user, all_courses=all_courses)
+    return render_template("my_courses.html", user=user)
 @main.route("/student/add/<int:course_id>", methods=["POST"])
 @login_required
 def add_course(course_id):
