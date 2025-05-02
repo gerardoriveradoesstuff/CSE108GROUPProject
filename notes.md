@@ -103,7 +103,7 @@ def student_dashboard():
     course_ids = [course.id for course in user.courses_enrolled]
     deadlines = Deadline.query.filter(Deadline.course_id.in_(course_ids)).all()
 
-    return render_template("student_dashboard.html", user=user, all_courses=all_courses, deadlines=deadlines)
+    return render_template("template-student-dashboard.html", user=user, all_courses=all_courses, deadlines=deadlines)
 ```
 
 ## ❓Why this organization?
@@ -211,7 +211,7 @@ This reflects standard database normalization principles.
 @main.route('/finance')
 @login_required
 def finance_dashboard():
-    return render_template('finance.html', user=current_user)
+    return render_template('template-template-finance.html', user=current_user)
 ```
 
 - `@login_required` ensures only logged-in users access the dashboard.
