@@ -25,7 +25,7 @@ def register():
     if form.validate_on_submit():
         if User.query.filter_by(username=form.username.data).first():
             flash("Username already exists")
-            return render_template("register.html", form=form)
+            return render_template("template-register.html", form=form)
 
         hashed_password = generate_password_hash(form.password.data)
 
@@ -40,7 +40,7 @@ def register():
         flash("Registration successful! Please log in.")
         return redirect(url_for("main.login"))
 
-    return render_template("register.html", form=form)
+    return render_template("template-register.html", form=form)
 
 
 @main.route("/", methods=["GET", "POST"])
@@ -55,7 +55,7 @@ def login():
             elif user.role == "teacher":
                 return redirect(url_for("main.teacher_dashboard"))
         flash("Invalid credentials")
-    return render_template("login.html", form=form)
+    return render_template("template-login.html", form=form)
 
 @main.route("/logout")
 @login_required
@@ -69,18 +69,22 @@ def student_dashboard():
     # this is lazy-loading. Didn't work because
     # current_user (student) is passed directly into templates. The session closes before the template tries to access it
     # all_courses = Course.query.all()
-    # return render_template("student_dashboard.html", user=current_user, all_courses=all_courses)
+    # return render_template("template-student-dashboard.html", user=current_user, all_courses=all_courses)
     # re-fetch the user with all relationships eagerly loaded
 
     user = User.query.options(joinedload(User.courses_enrolled).joinedload(Course.teacher)).get(current_user.id)
-    return render_template("student_dashboard.html", user=user)
+    return render_template("template-student-dashboard.html", user=user)
 
 
 @main.route("/my_courses", methods=["GET"])
 @login_required
 def my_courses():
+    all_courses = Course.query.all()
     user = User.query.options(joinedload(User.courses_enrolled).joinedload(Course.teacher)).get(current_user.id)
-    return render_template("my_courses.html", user=user)
+    return render_template("template-my-courses.html", user=user, all_courses=all_courses)
+
+
+
 @main.route("/student/add/<int:course_id>", methods=["POST"])
 @login_required
 def add_course(course_id):
@@ -101,7 +105,7 @@ def add_course(course_id):
         user.courses_enrolled.append(course)
         db.session.commit()
 
-    return redirect(url_for("main.student_dashboard"))
+    return redirect(url_for("main.my_courses"))
 
 @main.route("/student/drop/<int:course_id>", methods=["POST"])
 @login_required
@@ -111,14 +115,14 @@ def drop_course(course_id):
     if course and course in user.courses_enrolled:
         user.courses_enrolled.remove(course)
         db.session.commit()
-    return redirect(url_for("main.student_dashboard"))
+    return redirect(url_for("main.my_courses"))
 
 @main.route("/teacher")
 @login_required
 def teacher_dashboard():
     user = User.query.options(joinedload(User.courses_enrolled).joinedload(Course.teacher)).get(current_user.id)
     all_courses = Course.query.all()
-    return render_template("teacher_dashboard.html", user=user, all_courses=all_courses)
+    return render_template("template-teacher-dashboard.html", user=user, all_courses=all_courses)
 
 
 @main.route("/teacher/course/<int:course_id>", methods=["GET", "POST"])
@@ -140,7 +144,7 @@ def class_detail(course_id):
         db.session.commit()
         return redirect(url_for("main.class_detail", course_id=course_id))
 
-    return render_template("class_detail.html", course=course, students=students, grades=grades, user=current_user)
+    return render_template("template-class-detail.html", course=course, students=students, grades=grades, user=current_user)
 
 
 # def get_current_user_with_courses():
@@ -174,12 +178,12 @@ def add_deadline(course_id):
             flash("Deadline added successfully!")
             return redirect(url_for("main.class_detail", course_id=course.id))
 
-    return render_template("add_deadline.html", course=course)
+    return render_template("template-add-deadline.html", course=course)
 
 
 @main.route('/finance')
 def finance_dashboard():
-    return render_template('finance.html', user=current_user)
+    return render_template('template-finance.html', user=current_user)
 
 
 # @main.route('/add-user', methods=['POST'])
