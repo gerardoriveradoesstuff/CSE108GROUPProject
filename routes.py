@@ -75,20 +75,25 @@ def student_dashboard():
     user = User.query.options(joinedload(User.courses_enrolled).joinedload(Course.teacher)).get(current_user.id)
     return render_template("template-student-dashboard.html", user=user)
 
-@main.route("/profile")
+@main.route("/profile" , methods=["GET", "POST"])
 @login_required
 def profile():
     user = User.query.options(joinedload(User.courses_enrolled).joinedload(Course.teacher)).get(current_user.id)
-    user.bio = request.form.get('bio')
-    user.linkedin_url = request.form.get('linkedin_url')
-    user.pronunciation = request.form.get('pronunciation')
+    if request.method == 'POST':
+        # Update user profile
+        user.bio = request.form.get('bio')
+        user.linkedin_url = request.form.get('linkedin_url')
+        user.pronunciation = request.form.get('pronunciation')
 
-    try:
-        db.session.commit()
-        flash("Profile updated successfully!", "success")
-    except Exception as e:
-        db.session.rollback()
-        flash("An error occurred while updating your profile.", "danger")
+        try:
+            db.session.commit()
+            flash("Profile updated successfully!", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash("An error occurred while updating your profile.", "danger")
+
+        return redirect(url_for('main.profile'))
+        # Eagerly load user with enrolled courses
 
     return render_template('template-profile.html', user=user)
 
