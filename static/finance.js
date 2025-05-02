@@ -221,8 +221,8 @@ async function fetchTransactions() {
                 <td>${tx.category}</td>
                 <td>${tx.description}</td>
                 <td>
-                    <button class="btn btn-sm btn-warning" onclick="editTransaction(${tx.transaction_id})">Edit</button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteTransaction(${tx.transaction_id})">Delete</button>
+                    <button class="btn btn-sm" onclick="editTransaction(${tx.transaction_id})">Edit</button>
+                    <button class="btn btn-sm" onclick="deleteTransaction(${tx.transaction_id})">Delete</button>
                 </td>
             </tr>`;
     });
