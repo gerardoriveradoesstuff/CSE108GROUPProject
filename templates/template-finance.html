@@ -6,18 +6,15 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-
     <!-- Custom Dashboard Styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles-dashboard.css') }}">
-
     <!-- Theme Styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles-theme.css') }}">
 </head>
 <body>
 {% include "template-theme.html" %}
-<!--<body class="bg-light">-->
+
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
@@ -25,12 +22,12 @@
                 <div class="sidebar-sticky pt-3">
                     <h5 class="sidebar-header px-3">🎓 UCM University</h5>
                     <ul class="nav flex-column">
-                        <li class="nav-item"><a class="nav-link active" href="{{ url_for('main.student_dashboard') }}">🏠
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.student_dashboard') }}">🏠
                             Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">👤 Profile</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.my_courses') }}">📚 My Courses</a>
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.finance_dashboard') }}">💲Student
+                        <li class="nav-item"><a class="nav-link active" href="{{ url_for('main.finance_dashboard') }}">💲 My
                             Expenses</a></li>
                         <li class="nav-item"><a class="nav-link signout-link" href="{{ url_for('main.logout') }}">🚪 Sign
                             out</a></li>
