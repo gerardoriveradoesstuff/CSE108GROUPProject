@@ -1,16 +1,19 @@
-from flask import Flask                      # Flask is the main class for creating a Flask app
+from flask import Flask, jsonify                     # Flask is the main class for creating a Flask app
 from flask_login import LoginManager         # Handles user login/session management
 from flask_admin import Admin                # Provides an admin dashboard UI for managing models
 from flask import current_app                # Gives access to the current app context
 from flask_admin.contrib.sqla import ModelView  # Provides default CRUD views for SQLAlchemy models
 from wtforms import SelectField
 from forms import UserAdminForm
+from dotenv import load_dotenv
+from flask_migrate import Migrate
 
 
 # Import models and routes defined in your app
 from models import *   # Database models
 from routes import main                      # app's route blueprint (views)
 
+load_dotenv()  # Load .env file
 app = Flask(__name__) # Initialize the Flask application
 
 app.config['SECRET_KEY'] = 'secret-key' # Used for securely signing session cookies
@@ -19,6 +22,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # false to prevent extra me
 
 # Init extensions
 db.init_app(app)                             # SQLAlchemy with app
+migrate = Migrate(app, db)
+
 login_manager = LoginManager(app)            # Flask-Login
 login_manager.login_view = "main.login"      # Redirect to 'main.login' when unauthenticated users try to access login-required pages
 
@@ -26,6 +31,27 @@ login_manager.login_view = "main.login"      # Redirect to 'main.login' when una
 # Register blueprint
 app.register_blueprint(main)  # Register routes (views) defined in the 'main' Blueprint (from routes.py)
 
+
+# @main.route('/api/news')
+# def get_news():
+#     api_key = os.getenv("NEWS_API_KEY")
+#     if not api_key:
+#         return jsonify({"error": "API key missing"}), 500
+#
+#     url = "https://newsapi.org/v2/everything"
+#     params = {
+#         "q": "computer science statistics",
+#         "language": "en",
+#         "sortBy": "publishedAt",
+#         "pageSize": 5,
+#         "apiKey": api_key
+#     }
+#
+#     try:
+#         response = requests.get(url, params=params)
+#         return jsonify(response.json())
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
 
 @login_manager.user_loader      # Tells Flask-Login how to load a user from a given user ID
 def load_user(user_id):
@@ -97,8 +123,11 @@ admin.add_view(DeadlineModelView(Deadline, db.session))
 
 
 # Create tables on first run
+
 with app.app_context():  # app context to  access db
     db.create_all() # Create tables if they don’t exist
+    # IF USING FLASK MIGRATE THIS IS NOT NEEDED, BUT ALSO WON'T BREAK THINGS
+    # BEST TO RELY ON MIGRATE IF USING MIGRATE. MIGRATE USE MIGRATE
 
 if __name__ == '__main__':
     app.run(debug=True)
