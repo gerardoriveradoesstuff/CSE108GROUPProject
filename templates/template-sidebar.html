@@ -1,0 +1,45 @@
+<nav class="col-md-3 sidebar">
+    <div class="sidebar-sticky pt-3">
+        <h5 class="sidebar-header px-3">🎓 UCM University</h5>
+        <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.student_dashboard') }}">🏠 Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.profile') }}">👤 Profile</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.my_courses') }}">📚 My Courses</a></li>
+            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.finance_dashboard') }}">💲 My Expenses</a>
+            </li>
+            <li class="nav-item"><a class="nav-link signout-link" href="{{ url_for('main.logout') }}">🚪 Sign out</a>
+            </li>
+        </ul>
+        {% include "template-upcoming-deadlines.html" %}
+        {% include "template-announcements.html" %}
+
+
+        {% if request.endpoint == 'main.finance_dashboard' %}
+        <!-- Generate Report Form (Finance Page Only) -->
+        <div class="card mt-4 shadow-sm">
+            <div class="card-header">Generate Report</div>
+            <div class="card-body">
+                <form id="generate-report-form" class="row g-3">
+                    <input type="hidden" id="report-user-id" class="form-control" value="{{ user.id }}">
+                    <div class="col-12 mb-2">
+                        <label for="report-year" class="form-label">Year</label>
+                        <input type="number" id="report-year" class="form-control" required>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label for="report-month" class="form-label">Month</label>
+                        <select id="report-month" class="form-select" required>
+                            <option value="" disabled selected>Select Month</option>
+                            {% for m in range(1, 13) %}
+                            <option value="{{ m }}">{{ m }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 text-center">
+                        <button type="submit" class="btn btn-primary btn-sm">Generate</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</nav>

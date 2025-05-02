@@ -18,27 +18,9 @@
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
-            <nav class="col-md-2 d-none d-md-block sidebar">
-                <div class="sidebar-sticky pt-3">
-                    <h5 class="sidebar-header px-3">🎓 UCM University</h5>
-                    <ul class="nav flex-column">
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.student_dashboard') }}">🏠
-                            Dashboard</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">👤 Profile</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.my_courses') }}">📚 My Courses</a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link active" href="{{ url_for('main.finance_dashboard') }}">💲 My
-                            Expenses</a></li>
-                        <li class="nav-item"><a class="nav-link signout-link" href="{{ url_for('main.logout') }}">🚪 Sign
-                            out</a></li>
-                    </ul>
-                    {% include "template-upcoming-deadlines.html" %}
-                    {% include "template-announcements.html" %}
-                </div>
-            </nav>
-
+            {% include "template-sidebar.html" %}
             <!-- Main Content -->
-            <main class="col-md-10 ml-sm-auto col-lg-10 px-4 pt-4">
+            <main class="col-md-10 ml-sm-auto col-lg-10 px-4 pt-3">
                 <h1 class="text-start mb-4">Transaction Manager</h1>
 
                 <div class="row">
@@ -106,8 +88,8 @@
                             <div class="spinner-border" role="status"></div>
                             <p>Fetching transactions...</p>
                         </div>
-                        <table class="table table-bordered table-striped" id="transactions-table">
-                            <thead class="table-dark">
+                        <table class="table table-striped table-hover" id="transactions-table">
+                            <thead>
                             <tr>
                                 <th>Transaction ID</th>
                                 <th>Date</th>
@@ -122,32 +104,6 @@
                             <!-- Rows will be dynamically inserted here -->
                             </tbody>
                         </table>
-                    </div>
-                </div>
-
-                <!-- Generate Report -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h2>Generate Report</h2>
-                        <form id="generate-report-form" class="row g-3">
-                            <input type="hidden" id="report-user-id" class="form-control" value="{{ user.id }}">
-                            <div class="col-md-4">
-                                <label for="report-year" class="form-label">Year</label>
-                                <input type="number" id="report-year" class="form-control" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="report-month" class="form-label">Month</label>
-                                <select id="report-month" class="form-select" required>
-                                    <option value="" disabled selected>Select Month</option>
-                                    {% for m in range(1, 13) %}
-                                    <option value="{{ m }}">{{ m }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-12 text-center">
-                                <button type="submit" class="btn btn-primary">Generate Report</button>
-                            </div>
-                        </form>
                     </div>
                 </div>
 
@@ -234,5 +190,6 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/static/finance.js"></script>
+    <script src="/static/theme.js"></script>
 </body>
 </html>
