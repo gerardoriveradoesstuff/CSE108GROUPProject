@@ -1,0 +1,65 @@
+<!-- Updated Student Profile Template for UCM University Web App -->
+<div class="container-fluid px-4">
+  <div class="row">
+    <!-- Sidebar (reused from layout) -->
+    <div class="col-md-2 d-none d-md-block sidebar">
+      {% include "template-sidebar.html" %}
+    </div>
+
+    <!-- Main Profile Content -->
+    <main class="col-md-10">
+      <div class="pt-4">
+        <h1 class="h3 mb-3">Student Profile</h1>
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-body d-flex align-items-start">
+            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/e/ea/McGonagall_%28screenshot%29.jpg/250px-McGonagall_%28screenshot%29.jpg" class="rounded me-4" width="120" height="120" alt="Profile Picture">
+
+            <div class="flex-grow-1">
+              <h4 class="mb-1">{{ user.username.capitalize() }}</h4>
+              <p class="mb-1">📧 {{ user.email }}</p>
+              <p class="mb-1">🎓 Major: {{ user.major }}</p>
+              <p class="mb-1">📅 Graduation: Spring {{ user.year }}</p>
+              <p class="mb-0">⭐ GPA: {{ user.GPA }}</p>
+            </div>
+
+            <div>
+              <a href="#" class="btn btn-outline-secondary btn-sm">Edit Profile</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card mb-4">
+              <div class="card-header">Biography</div>
+              <div class="card-body">
+                <p class="mb-0">{{ user.bio or 'No biography provided.' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card mb-4">
+              <div class="card-header">Linked Accounts</div>
+              <div class="card-body">
+                {% if user.linkedin_url %}
+                  <p><i class="bi bi-linkedin"></i> <a href="{{ user.linkedin_url }}" target="_blank">LinkedIn Profile</a></p>
+                {% else %}
+                  <p>No linked accounts.</p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header">Name Pronunciation</div>
+          <div class="card-body">
+            <p class="mb-0">{{ user.pronunciation or 'No name pronunciation provided.' }}</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

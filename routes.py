@@ -75,6 +75,11 @@ def student_dashboard():
     user = User.query.options(joinedload(User.courses_enrolled).joinedload(Course.teacher)).get(current_user.id)
     return render_template("template-student-dashboard.html", user=user)
 
+@main.route("/profile")
+@login_required
+def profile():
+    user = User.query.options(joinedload(User.courses_enrolled).joinedload(Course.teacher)).get(current_user.id)
+    return render_template("template-profile.html", user=user)
 
 @main.route("/my_courses", methods=["GET"])
 @login_required
@@ -86,7 +91,6 @@ def my_courses():
         g.course_id: g.grade for g in Grade.query.filter_by(student_id=user.id).all()
     }
     return render_template("template-my-courses.html", user=user, all_courses=all_courses, grade_map=grade_map)
-
 
 
 @main.route("/student/add/<int:course_id>", methods=["POST"])
