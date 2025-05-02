@@ -26,8 +26,8 @@
                 <div class="sidebar-sticky pt-3">
                     <h5 class="sidebar-header px-3">🎓 UCM University</h5>
                     <ul class="nav flex-column">
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.student_dashboard') }}">🏠 Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.profile') }}">👤 Profile</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.student_dashboard') }}">🏠 Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link active" href="{{ url_for('main.my_courses') }}">📚 My Courses</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.finance_dashboard') }}">💲 My Expenses</a></li>
                         <li class="nav-item"><a class="nav-link signout-link" href="{{ url_for('main.logout') }}">🚪 Sign out</a></li>
@@ -54,10 +54,10 @@
                                 Expect Graduation Year: {{ user.year }}
                             </p>
                         </div>
-                        <!-- Optional: Add a link to settings -->
-                        <div class="ms-auto">
-                            <a href="#" class="btn btn-sm btn-outline-secondary">Edit Profile</a>
-                        </div>
+<!--                        &lt;!&ndash; Optional: Add a link to settings &ndash;&gt;-->
+<!--                        <div class="ms-auto">-->
+<!--                            <a href="#" class="btn btn-sm btn-outline-secondary">Edit Profile</a>-->
+<!--                        </div>-->
                     </div>
                 </div>
 
