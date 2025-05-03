@@ -10,7 +10,7 @@ from werkzeug.security import check_password_hash
 
 # db/model imports
 from models import db, User, Course, Grade, Deadline
-from models import Transaction, Category, Report
+from models import Transaction, Category, Announcement
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 
@@ -101,6 +101,23 @@ def inject_deadlines():
         return dict(deadlines=upcoming)
     return dict(deadlines=[])
 
+@main.context_processor
+def inject_announcement():
+    """
+    a context processor that makes announcements available in every template.
+    :return:
+    """
+    if current_user.is_authenticated and current_user.role == "student":
+        user = User.query.options(
+            joinedload(User.courses_enrolled).joinedload(Course.announcements)
+        ).get(current_user.id)
+
+        announcement = []
+        for course in user.courses_enrolled:
+            announcement.extend(course.announcements)
+
+        return dict(announcements=announcement)
+    return dict(announcements=[])
 
 @main.route("/api/scholar")
 def scholar_proxy():
@@ -246,9 +263,10 @@ def drop_course(course_id):
 def teacher_dashboard():
     user = User.query.options(
         joinedload(User.courses_taught)
-        .joinedload(Course.deadlines),
+            .joinedload(Course.deadlines),
+        joinedload(User.announcements),
         joinedload(User.courses_taught)
-        .joinedload(Course.teacher)
+            .joinedload(Course.teacher)
     ).get(current_user.id)
     return render_template("template-teacher-dashboard.html", user=user)
 
@@ -306,35 +324,33 @@ def add_deadline(course_id):
     return render_template("template-add-deadline.html", course=course)
 
 
-# @main.route("/teacher/course/<int:course_id>/add_announcement", methods=["GET", "POST"])
-# @login_required
-# def add_announcment(course_id):
-#     """
-#     /teacher/course/<id>/add_deadline is intuitive and RESTful: modifying a course sub-resource.
-#     :param course_id:
-#     :return:
-#     """
-#     course = Course.query.get(course_id)
-#
-#     # Route guards (course.teacher_id != current_user.id) enforce security so only the correct teacher can access it.
-#     # Verify the teacher owns the course
-#     if course.teacher_id != current_user.id:
-#         flash("You do not have permission to add a deadline to this course.")
-#         return redirect(url_for('main.teacher_dashboard'))
-#
-#     if request.method == "POST":
-#         assignment = request.form.get("announcment")
-#         published = request.form.get("due-date")
-#
-#         if assignment and published:
-#             deadline = Deadline(assignment=assignment, due_date=published, course_id=course.id, user_id=current_user.id)
-#             db.session.add(deadline)
-#             db.session.commit()
-#             flash("Announcement added successfully!")
-#             return redirect(url_for("main.class_detail", course_id=course.id))
-#
-#     return render_template("template-add-deadline.html", course=course)
-#
+
+@main.route("/teacher/course/<int:course_id>/add_announcement", methods=["GET", "POST"])
+@login_required
+def add_announcement(course_id):
+    course = Course.query.get(course_id)
+
+    if course.teacher_id != current_user.id:
+        flash("You do not have permission to add an announcement to this course.")
+        return redirect(url_for('main.teacher_dashboard'))
+
+    if request.method == "POST":
+        announcement_text = request.form.get("announcement")
+        due_date = request.form.get("due-date")
+
+        if announcement_text and due_date:
+            new_announcement = Announcement(
+                announcement=announcement_text,
+                course_id=course.id,
+                user_id=current_user.id
+            )
+            db.session.add(new_announcement)
+            db.session.commit()
+            flash("Announcement added successfully!")
+            return redirect(url_for("main.teacher_dashboard"))
+
+    return render_template("template-add-announcement.html", course=course)
+
 
 @main.route('/finance')
 def finance_dashboard():
