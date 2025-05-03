@@ -33,6 +33,7 @@ class User(UserMixin, db.Model):
     courses_enrolled = db.relationship('Course', secondary=enrollments, backref='students')
     courses_taught = db.relationship('Course', backref='teacher', foreign_keys='Course.teacher_id')
     deadlines = db.relationship('Deadline', back_populates='user', cascade="all, delete-orphan")
+    announcements = db.relationship('Announcement', back_populates='user', cascade="all, delete-orphan")
     transactions = db.relationship('Transaction', back_populates='user', lazy='dynamic')
     reports = db.relationship('Report', back_populates='user', cascade="all, delete-orphan")
 
@@ -71,6 +72,17 @@ class Deadline(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', back_populates='deadlines')
+
+class Announcement(db.Model):
+    __tablename__ = 'announcement'
+    id = db.Column(db.Integer, primary_key=True)
+    announcement = db.Column(db.String(254), nullable=False)
+    # Assuming the announcement MAY relate to a course
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
+    course = db.relationship('Course', backref='announcements')
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User', back_populates='announcements')
 
 
 class Transaction(db.Model):
