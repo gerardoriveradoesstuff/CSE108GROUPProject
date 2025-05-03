@@ -18,7 +18,7 @@
             <th>Time</th>
             <th>Students Enrolled</th>
             <th>Grade</th>
-            <th>Due Date</th>
+            <th>Deadlines</th>
             <th>Announcement</th>
         </tr>
         {% for course in user.courses_taught %}
@@ -27,7 +27,7 @@
             <td>{{ course.teacher.username }}</td>
             <td>{{ course.time }}</td>
             <td>{{ course.students|length }}/{{ course.capacity }}</td>
-            <td><a href="{{ url_for('main.class_detail', course_id=course.id) }}">Click here</a></td>
+            <td><a href="{{ url_for('main.class_detail', course_id=course.id) }}">Add Grade</a></td>
             <td>
                 {% for deadline in course.deadlines %}
                 <div><strong>{{ deadline.assignment }}</strong>: {{ deadline.due_date }}</div>
@@ -35,6 +35,14 @@
                 <span class="text-muted">No deadlines</span>
                 {% endfor %}
                 <a href="{{ url_for('main.add_deadline', course_id=course.id) }}">Add</a>
+            </td>
+            <td>
+                {% for announcement in course.announcements %}
+                <div><strong>{{ announcement.assignments }}</strong></div>
+                {% else %}
+                <span class="text-muted">No announcement</span>
+                {% endfor %}
+                <a href="{{ url_for('main.add_announcement', course_id=course.id) }}">Add</a>
             </td>
         </tr>
         {% endfor %}
