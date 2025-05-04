@@ -353,3 +353,29 @@ body.dark-mode .text-muted {
 }
 
 /* ===== END SLIDER SWITCH ===== */
+
+
+/* ===== FORM ELEMENTS ===== */
+
+/* Inputs, Textareas, and Selects in Dark Mode */
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+    background-color: #2a2a2a;
+    color: #f1f1f1;
+    border: 1px solid #555;
+}
+
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder {
+    color: #cccccc;
+}
+
+body.dark-mode input:focus,
+body.dark-mode textarea:focus,
+body.dark-mode select:focus {
+    background-color: #2a2a2a;
+    color: #ffffff;
+    border-color: #777;
+    box-shadow: none;
+}
