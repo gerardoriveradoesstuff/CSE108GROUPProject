@@ -401,11 +401,13 @@ def add_announcement(course_id):
 ##########################################################
 # <---- STUDENT EXPENSE SECTION ---->
 @main.route('/finance')
+@login_required
 def finance_dashboard():
     return render_template('template-finance.html', user=current_user)
 
 
 @main.route('/add-transaction', methods=['POST'])
+@login_required
 def add_transaction():
     """
     (3) Query: Adds a new transaction to the Transactions table.
@@ -431,9 +433,10 @@ def add_transaction():
         if not category:
             return jsonify({'error': f'Category with ID {category_id} does not exist.'}), 400
 
-        # Validate that only one field is filled
-        if (income == 0 and expense == 0) or (income > 0 and expense > 0):
-            return jsonify({'error': 'Please provide either income or expense, but not both.'}), 400
+        # # Validate that only one field is filled
+
+        if (income > 0 and expense > 0) or (income == 0 and expense == 0):
+            return jsonify({'error': 'Please provide either income or expense, not both.'}), 400
 
         if not data:
             return jsonify({'error': 'Missing JSON payload'}), 400

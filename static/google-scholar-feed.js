@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("scholar-form");
-    const newsContainer = document.getElementById("news-feed");
+    const newsContainer = document.getElementById("google-scholar");
 
     form.addEventListener("submit", async (e) => {
         e.preventDefault();

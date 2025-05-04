@@ -15,183 +15,202 @@
 <body>
 {% include "template-theme.html" %}
 
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            {% include "template-sidebar.html" %}
-            <!-- Main Content -->
-            <main class="col-md-10 ml-sm-auto col-lg-10 px-4 pt-3">
-                <h1 class="text-start mb-4">Transaction Manager</h1>
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        {% include "template-sidebar.html" %}
+        <!-- Main Content -->
+        <main class="col-md-10 ml-sm-auto col-lg-10 px-4 pt-3">
+            <h1 class="text-start mb-4">Transaction Manager</h1>
 
-                <div class="row">
-                    <!-- Create Category Form -->
-                    <div class="col-md-6 mb-4">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h2>Create a Category</h2>
-                                <form id="create-category-form" class="row g-3 align-items-end">
-                                    <div class="col-md-6">
-                                        <label for="category-name-input" class="form-label">Category Name</label>
-                                        <input type="text" id="category-name-input" class="form-control"required>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <button type="submit" class="btn btn-success">Add Category</button>
-                                    </div>
-                                    <a>Example Categories:</a>
-                                    <a>Rent</a>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Add Transaction Form -->
-                    <div class="col-md-6 mb-4">
-                        <div class="card h-auto">
-                            <div class="card-body">
-                                <h2>Add a Transaction</h2>
-                                <form id="transaction-form" class="row g-3 align-items-end">
-                                    <input type="hidden" id="user-id-add" class="form-control" value="{{ user.id }}">
-                                    <div class="col-md-4">
-                                        <label for="category-id" class="form-label">Category</label>
-                                        <select id="category-id" class="form-select" required>
-                                            <option value="" disabled selected>Select Category</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="income" class="form-label">Income</label>
-                                        <input type="number" id="income" class="form-control" step="0.01" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="expense" class="form-label">Expense</label>
-                                        <input type="number" id="expense" class="form-control" step="0.01" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="description" class="form-label">Description</label>
-                                        <input type="text" id="description" class="form-control" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="date" class="form-label">Date</label>
-                                        <input type="date" id="date" class="form-control" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <button type="submit" class="btn btn-primary">Add Transaction</button>
-                                    </div>
-                                </form>
-                            </div>
+            <div class="row">
+                <!-- Create Category Form -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h2>Create a Category</h2>
+                            <form id="create-category-form" class="row g-3 align-items-end">
+                                <div class="col-md-6">
+                                    <label for="category-name-input" class="form-label">Category Name</label>
+                                    <input type="text" id="category-name-input" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <button type="submit" class="btn btn-success">Add Category</button>
+                                </div>
+                                <a>Example Categories:</a>
+                                <a>Rent</a>
+                            </form>
                         </div>
                     </div>
                 </div>
 
-                <!-- Transactions Table -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h2>Transactions</h2>
-                        <div id="loading-spinner" class="text-center d-none">
-                            <div class="spinner-border" role="status"></div>
-                            <p>Fetching transactions...</p>
+                <!-- Add Transaction Form -->
+                <div class="col-md-6 mb-4">
+                    <div class="card h-auto">
+                        <div class="card-body">
+                            <h2>Add a Transaction</h2>
+                            <form id="transaction-form" class="row g-3 align-items-end">
+                                <input type="hidden" id="user-id-add" class="form-control" value="{{ user.id }}">
+                                <div class="col-md-4">
+                                    <label for="category-id" class="form-label">Category</label>
+                                    <select id="category-id" class="form-select" required>
+                                        <option value="" disabled selected>Select Category</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="income" class="form-label">Income</label>
+                                    <input type="number" id="income" class="form-control" step="0.01" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="expense" class="form-label">Expense</label>
+                                    <input type="number" id="expense" class="form-control" step="0.01" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="description" class="form-label">Description</label>
+                                    <input type="text" id="description" class="form-control" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="date" class="form-label">Date</label>
+                                    <input type="date" id="date" class="form-control" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="submit" class="btn btn-primary">Add Transaction</button>
+                                </div>
+                            </form>
                         </div>
-                        <table class="table table-striped table-hover" id="transactions-table">
-                            <thead>
-                            <tr>
-                                <th>Transaction ID</th>
-                                <th>Date</th>
-                                <th>Income</th>
-                                <th>Expense</th>
-                                <th>Category</th>
-                                <th>Description</th>
-                                <th>Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <!-- Rows will be dynamically inserted here -->
-                            </tbody>
-                        </table>
                     </div>
                 </div>
+            </div>
 
-                <!-- Report Modal -->
-                <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel"
-                     aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Transaction Report</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <p><strong>Total Income:</strong> $<span id="total-income">0.00</span></p>
-                                <p><strong>Total Expense:</strong> $<span id="total-expense">0.00</span></p>
-                                <p><strong>Balance:</strong> $<span id="balance">0.00</span></p>
-                                <p><strong>Average Income:</strong> $<span id="average-income">0.00</span></p>
-                                <p><strong>Average Expense:</strong> $<span id="average-expense">0.00</span></p>
-                                <p><strong>Highest Income:</strong> <span id="highest-transaction">N/A</span></p>
-                                <p><strong>Smallest Expense:</strong> <span id="smallest-transaction">N/A</span></p>
+            <!-- Transactions Table -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2>Transactions</h2>
+                    <div id="loading-spinner" class="text-center d-none">
+                        <div class="spinner-border" role="status"></div>
+                        <p>Fetching transactions...</p>
+                    </div>
+                    <table class="table table-striped table-hover" id="transactions-table">
+                        <thead>
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>Date</th>
+                            <th>Income</th>
+                            <th>Expense</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!-- Rows will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                                <table class="table table-bordered mt-3">
-                                    <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Income</th>
-                                        <th>Expense</th>
-                                        <th>Description</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody id="report-table-body"></tbody>
-                                </table>
-                            </div>
-                            <div class="modal-footer">
-                                <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            </div>
+            <!-- Report Modal -->
+            <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Transaction Report</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Total Income:</strong> $<span id="total-income">0.00</span></p>
+                            <p><strong>Total Expense:</strong> $<span id="total-expense">0.00</span></p>
+                            <p><strong>Balance:</strong> $<span id="balance">0.00</span></p>
+                            <p><strong>Average Income:</strong> $<span id="average-income">0.00</span></p>
+                            <p><strong>Average Expense:</strong> $<span id="average-expense">0.00</span></p>
+                            <p><strong>Highest Income:</strong> <span id="highest-transaction">N/A</span></p>
+                            <p><strong>Smallest Expense:</strong> <span id="smallest-transaction">N/A</span></p>
+
+                            <table class="table table-bordered mt-3">
+                                <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Income</th>
+                                    <th>Expense</th>
+                                    <th>Description</th>
+                                </tr>
+                                </thead>
+                                <tbody id="report-table-body"></tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
-                <!-- Edit Transaction Modal -->
-                <div class="modal fade" id="editTransactionModal" tabindex="-1" aria-labelledby="editTransactionModalLabel"
-                     aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="editTransactionModalLabel">Edit Transaction</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form id="edit-transaction-form">
-                                    <input type="hidden" id="edit-transaction-id">
-                                    <div class="mb-3">
-                                        <label for="edit-income" class="form-label">Income</label>
-                                        <input type="number" id="edit-income" class="form-control" step="0.01">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="edit-expense" class="form-label">Expense</label>
-                                        <input type="number" id="edit-expense" class="form-control" step="0.01">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="edit-category-id" class="form-label">Category</label>
-                                        <input type="number" id="edit-category-id" class="form-control">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="edit-description" class="form-label">Description</label>
-                                        <input type="text" id="edit-description" class="form-control">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="edit-date" class="form-label">Date</label>
-                                        <input type="date" id="edit-date" class="form-control">
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary" onclick="updateTransaction()">Save changes
-                                </button>
-                            </div>
+            </div>
+            <!-- Edit Transaction Modal -->
+            <div class="modal fade" id="editTransactionModal" tabindex="-1" aria-labelledby="editTransactionModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editTransactionModalLabel">Edit Transaction</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="edit-transaction-form">
+                                <input type="hidden" id="edit-transaction-id">
+                                <div class="mb-3">
+                                    <label for="edit-income" class="form-label">Income</label>
+                                    <input type="number" id="edit-income" class="form-control" step="0.01">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-expense" class="form-label">Expense</label>
+                                    <input type="number" id="edit-expense" class="form-control" step="0.01">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-category-id" class="form-label">Category</label>
+                                    <input type="number" id="edit-category-id" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-description" class="form-label">Description</label>
+                                    <input type="text" id="edit-description" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="edit-date" class="form-label">Date</label>
+                                    <input type="date" id="edit-date" class="form-control">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="updateTransaction()">Save changes
+                            </button>
                         </div>
                     </div>
                 </div>
-            </main>
-        </div>
+            </div>
+        </main>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/static/finance.js"></script>
-    <script src="/static/theme.js"></script>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/static/finance.js"></script>
+<script src="/static/theme.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const incomeInput = document.getElementById("income");
+        const expenseInput = document.getElementById("expense");
+
+        incomeInput.addEventListener("input", () => {
+            if (parseFloat(incomeInput.value) > 0) {
+                expenseInput.value = "0";
+            }
+        });
+
+        expenseInput.addEventListener("input", () => {
+            if (parseFloat(expenseInput.value) > 0) {
+                incomeInput.value = "0";
+            }
+        });
+    });
+</script>
+
 </body>
 </html>
