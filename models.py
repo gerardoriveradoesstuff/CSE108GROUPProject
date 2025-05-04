@@ -11,6 +11,11 @@ enrollments = db.Table('enrollments',
     db.Column('course_id', db.Integer, db.ForeignKey('course.id'))
 )
 
+favorites = db.Table('favorites',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    db.Column('forum_id', db.Integer, db.ForeignKey('forum.id'), primary_key=True)
+)
+
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)  # unified primary key
@@ -128,10 +133,6 @@ class Report(db.Model):
 
     user = db.relationship('User', back_populates='reports')
 
-favorites = db.Table('favorites',
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
-    db.Column('forum_id', db.Integer, db.ForeignKey('forum.id'), primary_key=True)
-)
 
 class Forum(db.Model):
     __tablename__ = 'forum'
@@ -140,4 +141,6 @@ class Forum(db.Model):
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', backref='forums')
+    favorited_by = db.relationship('User', secondary='favorites', backref='favorite_posts')
+
 
