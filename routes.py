@@ -1,7 +1,7 @@
 # flask imports
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_user, login_required, logout_user, current_user
-from forms import LoginForm, RegisterForm
+from forms import LoginForm, RegisterForm, ForumPostForm
 import requests
 
 # security imports
@@ -9,7 +9,7 @@ from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 
 # db/model imports
-from models import db, User, Course, Grade, Deadline
+from models import db, User, Course, Grade, Deadline, Forum
 from models import Transaction, Category, Announcement
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload
@@ -19,7 +19,8 @@ from datetime import datetime, UTC
 
 main = Blueprint('main', __name__)
 
-
+##########################################################
+# <---- LOGIN/REGISTER SECTION ---->
 @main.route("/register", methods=["GET", "POST"])
 def register():
     form = RegisterForm()
@@ -65,7 +66,8 @@ def logout():
     logout_user()
     return redirect(url_for("main.login"))
 
-
+##########################################################
+# <---- STUDENT DASHBOARD ---->
 @main.route("/student")
 @login_required
 def student_dashboard():
@@ -81,7 +83,10 @@ def student_dashboard():
         joinedload(User.courses_enrolled)
         .joinedload(Course.deadlines)
     ).get(current_user.id)
-    return render_template("template-student-dashboard.html", user=user)
+
+    form = ForumPostForm()
+
+    return render_template("template-student-dashboard.html", user=user, form=form)
 
 @main.context_processor
 def inject_deadlines():
@@ -156,6 +161,42 @@ def scholar_feed():
     return render_template("template-google-scholar.html")
 
 
+@main.route('/forum', methods=['GET', 'POST'])
+@login_required
+def forum():
+    form = ForumPostForm()
+
+    if form.validate_on_submit():
+        new_post = Forum(
+            title=form.title.data,
+            content=form.content.data,
+            user_id=current_user.id
+        )
+        db.session.add(new_post)
+        db.session.commit()
+        flash('Post created successfully!', 'success')
+        return redirect(url_for('main.forum'))
+
+    filter_type = request.args.get('filter')
+    posts = current_user.favorite_posts if filter_type == 'favorites' else Forum.query.order_by(Forum.id.desc()).all()
+
+    return render_template('template-forum.html', form=form, posts=posts, filter_type=filter_type)
+
+@main.route('/forum/<int:post_id>/favorite', methods=['POST'])
+@login_required
+def toggle_favorite(post_id):
+    post = Forum.query.get_or_404(post_id)
+    if current_user in post.favorited_by:
+        post.favorited_by.remove(current_user)
+    else:
+        post.favorited_by.append(current_user)
+    db.session.commit()
+    return redirect(url_for('forum'))
+
+
+##########################################################
+# <---- STUDENT PROFILE ---->
+
 @main.route("/profile", methods=["GET", "POST"])
 @login_required
 def profile():
@@ -212,6 +253,9 @@ def profile_banner(user_id=None):
     return render_template("template-profile-banner.html", user=user)
 
 
+##########################################################
+# <---- STUDENT CLASSES SECTION ---->
+
 @main.route("/my_courses", methods=["GET"])
 @login_required
 def my_courses():
@@ -258,6 +302,8 @@ def drop_course(course_id):
     return redirect(url_for("main.my_courses"))
 
 
+##########################################################
+# <---- TEACHER DASHBOARD SECTION ---->
 @main.route("/teacher")
 @login_required
 def teacher_dashboard():
@@ -351,11 +397,11 @@ def add_announcement(course_id):
 
     return render_template("template-add-announcement.html", course=course)
 
-
+##########################################################
+# <---- STUDENT EXPENSE SECTION ---->
 @main.route('/finance')
 def finance_dashboard():
     return render_template('template-finance.html', user=current_user)
-
 
 
 @main.route('/add-transaction', methods=['POST'])
@@ -524,7 +570,9 @@ def fetch_transactions():
 
         else:
             # GET: Fetch all transactions
-            transactions = Transaction.query.all()
+            # only transactions for the logged-in user
+            transactions = Transaction.query.filter_by(user_id=current_user.id).all()
+            print("Transactions: %s ", transactions)  # Debugging: Logs all transactions for the user
 
         # Format the response
         result = [{
