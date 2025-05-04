@@ -178,7 +178,8 @@ def forum():
         return redirect(url_for('main.forum'))
 
     filter_type = request.args.get('filter')
-    posts = current_user.favorite_posts if filter_type == 'favorites' else Forum.query.order_by(Forum.id.desc()).all()
+    user = User.query.get(current_user.id)
+    posts = user.favorite_posts if filter_type == 'favorites' else Forum.query.order_by(Forum.id.desc()).all()
 
     return render_template('template-forum.html', form=form, posts=posts, filter_type=filter_type)
 
@@ -191,7 +192,7 @@ def toggle_favorite(post_id):
     else:
         post.favorited_by.append(current_user)
     db.session.commit()
-    return redirect(url_for('forum'))
+    return redirect(url_for('main.forum'))
 
 
 ##########################################################
