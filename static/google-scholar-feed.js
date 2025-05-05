@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const apiKey = "e0100edc7eec7c730ab914cb6f2050e251ed0c270a5b8060dbbc22519d22ee8c"; // Replace this
         // QUERY THE API
         const query = document.getElementById("query").value.trim();
         // YEAR LOW

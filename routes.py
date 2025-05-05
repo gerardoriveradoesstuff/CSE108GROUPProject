@@ -16,6 +16,7 @@ from sqlalchemy.orm import joinedload
 
 # MISC imports
 from datetime import datetime, UTC
+import os
 
 main = Blueprint('main', __name__)
 
@@ -126,7 +127,7 @@ def inject_announcement():
 
 @main.route("/api/scholar")
 def scholar_proxy():
-    api_key = "e0100edc7eec7c730ab914cb6f2050e251ed0c270a5b8060dbbc22519d22ee8c"
+    api_key = os.getenv("SCHOLAR_API_KEY")
     query = request.args.get("q", "")
     as_ylo = request.args.get("as_ylo", "")
     as_yhi = request.args.get("as_yhi", "")
