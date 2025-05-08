@@ -1,7 +1,7 @@
 # flask imports
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_user, login_required, logout_user, current_user
-from forms import LoginForm, RegisterForm, ForumPostForm
+from forms import LoginForm, RegisterForm, ForumPostForm, TeacherProfileForm
 import requests
 
 # security imports
@@ -19,53 +19,44 @@ from datetime import datetime, UTC
 import os
 
 main = Blueprint('main', __name__)
+teacher = Blueprint('teacher', __name__, url_prefix='/teacher')
 
 ##########################################################
 # <---- LOGIN/REGISTER SECTION ---->
-@main.route("/register", methods=["GET", "POST"])
-def register():
-    form = RegisterForm()
-    if form.validate_on_submit():
-        if User.query.filter_by(username=form.username.data).first():
-            flash("Username already exists")
-            return render_template("template-register.html", form=form)
-
-        hashed_password = generate_password_hash(form.password.data)
-
-        new_user = User(
-            username=form.username.data,
-            password=hashed_password,  # set the hashed password here
-            role=form.role.data,
-            email=form.email.data
-        )
-        db.session.add(new_user)
-        db.session.commit()
-        flash("Registration successful! Please log in.")
-        return redirect(url_for("main.login"))
-
-    return render_template("template-register.html", form=form)
-
-
-@main.route("/", methods=["GET", "POST"])
+@main.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
-            if user.role == "student":
-                return redirect(url_for("main.student_dashboard"))
-            elif user.role == "teacher":
-                return redirect(url_for("main.teacher_dashboard"))
-        flash("Invalid credentials")
-    return render_template("template-login.html", form=form)
+            next_page = request.args.get('next')
+            return redirect(next_page or url_for('main.student_dashboard' if user.role == 'student' else 'main.teacher_dashboard'))
+        flash('Invalid username or password', 'danger')
+    return render_template('template-login.html', form=form)
 
+@main.route("/register", methods=["GET", "POST"])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        hashed_password = generate_password_hash(form.password.data)
+        user = User(
+            username=form.username.data,
+            password=hashed_password,
+            email=form.email.data,
+            role=form.role.data
+        )
+        db.session.add(user)
+        db.session.commit()
+        flash('Account created successfully!', 'success')
+        return redirect(url_for('main.login'))
+    return render_template('template-register.html', form=form)
 
 @main.route("/logout")
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for("main.login"))
+    return redirect(url_for('main.login'))
 
 ##########################################################
 # <---- STUDENT DASHBOARD ---->
@@ -306,98 +297,137 @@ def drop_course(course_id):
 
 ##########################################################
 # <---- TEACHER DASHBOARD SECTION ---->
-@main.route("/teacher")
+@teacher.route("/")
 @login_required
 def teacher_dashboard():
+    if current_user.role != 'teacher':
+        return redirect(url_for('main.student_dashboard'))
+    
     user = User.query.options(
         joinedload(User.courses_taught)
             .joinedload(Course.deadlines),
-        joinedload(User.announcements),
         joinedload(User.courses_taught)
-            .joinedload(Course.teacher)
+            .joinedload(Course.students),
+        joinedload(User.announcements)
     ).get(current_user.id)
-    return render_template("template-teacher-dashboard.html", user=user)
+    
+    form = ForumPostForm()
+    return render_template("template-teacher-dashboard.html", user=user, form=form)
 
-
-@main.route("/teacher/course/<int:course_id>", methods=["GET", "POST"])
+@teacher.route("/profile", methods=["GET", "POST"])
 @login_required
-def class_detail(course_id):
-    course = Course.query.get(course_id)
+def teacher_profile():
+    if current_user.role != 'teacher':
+        return redirect(url_for('main.profile'))
+    
+    form = TeacherProfileForm(obj=current_user)
+    if form.validate_on_submit():
+        current_user.office_location = form.office_location.data
+        current_user.office_hours = form.office_hours.data
+        current_user.department = form.department.data
+        current_user.bio = form.bio.data
+        try:
+            db.session.commit()
+            flash("Profile updated successfully!", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash("Error updating profile.", "danger")
+        return redirect(url_for('teacher.teacher_profile'))
+    return render_template("teacher/profile.html", form=form, user=current_user)
+
+@teacher.route("/courses")
+@login_required
+def teacher_courses():
+    if current_user.role != 'teacher':
+        return redirect(url_for('main.student_dashboard'))
+    courses = Course.query.filter_by(teacher_id=current_user.id).all()
+    return render_template("teacher/courses.html", courses=courses)
+
+@teacher.route("/course/<int:course_id>")
+@login_required
+def course_detail(course_id):
+    if current_user.role != 'teacher':
+        return redirect(url_for('main.student_dashboard'))
+    
+    course = Course.query.get_or_404(course_id)
+    if course.teacher_id != current_user.id:
+        flash("Unauthorized access", "error")
+        return redirect(url_for('teacher.teacher_dashboard'))
+    
     students = course.students
     grades = {g.student_id: g for g in Grade.query.filter_by(course_id=course_id).all()}
+    return render_template("teacher/course_detail.html",
+                         course=course,
+                         students=students,
+                         grades=grades)
 
-    if request.method == "POST":
-        for student in students:
-            grade_val = request.form.get(f"grade_{student.id}")
-            if grade_val is not None:
-                grade = grades.get(student.id)
-                if not grade:
-                    grade = Grade(student_id=student.id, course_id=course_id)
-                    db.session.add(grade)
-                grade.grade = str(grade_val)
-        db.session.commit()
-        return redirect(url_for("main.class_detail", course_id=course_id))
-
-    return render_template("template-class-detail.html", course=course, students=students, grades=grades,
-                           user=current_user)
-
-
-@main.route("/teacher/course/<int:course_id>/add_deadline", methods=["GET", "POST"])
+@teacher.route("/course/<int:course_id>/add_deadline", methods=["GET", "POST"])
 @login_required
 def add_deadline(course_id):
-    """
-    /teacher/course/<id>/add_deadline is intuitive and RESTful: modifying a course sub-resource.
-    :param course_id:
-    :return:
-    """
-    course = Course.query.get(course_id)
-
-    # Route guards (course.teacher_id != current_user.id) enforce security so only the correct teacher can access it.
-    # Verify the teacher owns the course
+    if current_user.role != 'teacher':
+        return redirect(url_for('main.student_dashboard'))
+    
+    course = Course.query.get_or_404(course_id)
     if course.teacher_id != current_user.id:
-        flash("You do not have permission to add a deadline to this course.")
-        return redirect(url_for('main.teacher_dashboard'))
-
+        flash("Unauthorized access", "error")
+        return redirect(url_for('teacher.teacher_dashboard'))
+    
     if request.method == "POST":
-        assignment = request.form.get("assignment")
-        due_date = request.form.get("due-date")
+        assignment = request.form.get("assignment", "").strip()
+        due_date_str = request.form.get("due-date", "").strip()
+        
+        if not assignment or not due_date_str:
+            flash("Assignment name and due date are required", "error")
+        else:
+            try:
+                due_date = datetime.strptime(due_date_str, "%Y-%m-%dT%H:%M")
+                deadline = Deadline(
+                    assignment=assignment,
+                    due_date=due_date,
+                    course_id=course.id,
+                    user_id=current_user.id
+                )
+                db.session.add(deadline)
+                db.session.commit()
+                flash("Deadline added successfully!", "success")
+                return redirect(url_for('teacher.course_detail', course_id=course.id))
+            except ValueError:
+                flash("Invalid date format", "error")
+    return render_template("teacher/add_deadline.html", course=course)
 
-        if assignment and due_date:
-            deadline = Deadline(assignment=assignment, due_date=due_date, course_id=course.id, user_id=current_user.id)
-            db.session.add(deadline)
-            db.session.commit()
-            flash("Deadline added successfully!")
-            return redirect(url_for("main.teacher_dashboard"))
-
-    return render_template("template-add-deadline.html", course=course)
-
-
-
-@main.route("/teacher/course/<int:course_id>/add_announcement", methods=["GET", "POST"])
+@teacher.route("/forum")
 @login_required
-def add_announcement(course_id):
-    course = Course.query.get(course_id)
+def teacher_forum():
+    if current_user.role != 'teacher':
+        return redirect(url_for('main.forum'))
+    
+    teacher_course_ids = [c.id for c in current_user.courses_taught]
+    posts = Forum.query.filter(Forum.course_id.in_(teacher_course_ids))\
+                      .order_by(Forum.created_at.desc()).all()
+    return render_template("teacher/forum.html", posts=posts)
 
-    if course.teacher_id != current_user.id:
-        flash("You do not have permission to add an announcement to this course.")
-        return redirect(url_for('main.teacher_dashboard'))
-
-    if request.method == "POST":
-        announcement_text = request.form.get("announcement")
-        due_date = request.form.get("due-date")
-
-        if announcement_text and due_date:
-            new_announcement = Announcement(
-                announcement=announcement_text,
-                course_id=course.id,
-                user_id=current_user.id
-            )
-            db.session.add(new_announcement)
-            db.session.commit()
-            flash("Announcement added successfully!")
-            return redirect(url_for("main.teacher_dashboard"))
-
-    return render_template("template-add-announcement.html", course=course)
+@teacher.route("/forum/create", methods=["GET", "POST"])
+@login_required
+def create_post():
+    if current_user.role != 'teacher':
+        return redirect(url_for('main.forum'))
+    
+    form = ForumPostForm()
+    form.course_id.choices = [(c.id, c.name) for c in current_user.courses_taught]
+    
+    if form.validate_on_submit():
+        post = Forum(
+            title=form.title.data,
+            content=form.content.data,
+            user_id=current_user.id,
+            course_id=form.course_id.data,
+            is_announcement=True
+        )
+        db.session.add(post)
+        db.session.commit()
+        flash("Post created successfully!", "success")
+        return redirect(url_for('teacher.teacher_forum'))
+    return render_template("teacher/create_post.html", form=form)
 
 ##########################################################
 # <---- STUDENT EXPENSE SECTION ---->

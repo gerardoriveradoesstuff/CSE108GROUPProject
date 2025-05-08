@@ -11,7 +11,7 @@ from flask_migrate import Migrate
 
 # Import models and routes defined in your application
 from models import *   # Database models
-from routes import main                      # application's route blueprint (views)
+from routes import main, teacher                      # application's route blueprint (views)
 
 load_dotenv()  # Load .env file
 application = Flask(__name__) # Initialize the Flask application
@@ -30,7 +30,7 @@ login_manager.login_view = "main.login"      # Redirect to 'main.login' when una
 
 # Register blueprint
 application.register_blueprint(main)  # Register routes (views) defined in the 'main' Blueprint (from routes.py)
-
+application.register_blueprint(teacher) 
 
 # @main.route('/api/news')
 # def get_news():

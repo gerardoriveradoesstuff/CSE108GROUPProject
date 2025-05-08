@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, IntegerField, SelectField
 from wtforms.fields.simple import TextAreaField
-from wtforms.validators import DataRequired, Email
+from wtforms.validators import DataRequired, Email, Length
 
 
 class LoginForm(FlaskForm):
@@ -29,3 +29,18 @@ class UserAdminForm(FlaskForm):
 class ForumPostForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     content = TextAreaField('Content', validators=[DataRequired()])
+
+
+class TeacherProfileForm(FlaskForm):
+    office_location = StringField('Office Location', validators=[Length(max=100)])
+    office_hours = StringField('Office Hours', validators=[Length(max=100)])
+    department = SelectField('Department', choices=[
+        ('', 'Select Department'),
+        ('computer_science', 'Computer Science'),
+        ('mathematics', 'Mathematics'),
+        ('physics', 'Physics'),
+        ('engineering', 'Engineering'),
+        ('business', 'Business')
+    ])
+    bio = TextAreaField('Bio', validators=[Length(max=500)])
+    submit = SubmitField('Save Profile')

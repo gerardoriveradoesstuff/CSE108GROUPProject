@@ -33,6 +33,9 @@ class User(UserMixin, db.Model):
     bio = db.Column(db.Text)
     linkedin_url = db.Column(db.String(255))
     pronunciation = db.Column(db.String(100))
+    office_location = db.Column(db.String(100))
+    office_hours = db.Column(db.String(100))
+    department = db.Column(db.String(100))
 
     # Relationships
     courses_enrolled = db.relationship('Course', secondary=enrollments, backref='students')
