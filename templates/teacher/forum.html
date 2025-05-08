@@ -1,0 +1,32 @@
+{% extends "teacher/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Course Discussions</h2>
+        <a href="{{ url_for('teacher.create_post') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> New Announcement
+        </a>
+    </div>
+
+    <div class="list-group">
+        {% for post in posts %}
+        <div class="list-group-item">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">
+                    {{ post.title }}
+                    {% if post.is_announcement %}
+                    <span class="badge bg-info">Announcement</span>
+                    {% endif %}
+                </h5>
+                <small>{{ post.created_at|datetimeformat }}</small>
+            </div>
+            <p class="mb-1">{{ post.content }}</p>
+            <small>Posted in: {{ post.course.name }}</small>
+        </div>
+        {% else %}
+        <div class="alert alert-info">No discussions yet in your courses.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

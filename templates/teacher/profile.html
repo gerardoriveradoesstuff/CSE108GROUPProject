@@ -1,0 +1,33 @@
+{% extends "teacher/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Teacher Profile</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                {{ form.office_location.label(class="form-label") }}
+                {{ form.office_location(class="form-control") }}
+            </div>
+            <div class="col-md-6">
+                {{ form.office_hours.label(class="form-label") }}
+                {{ form.office_hours(class="form-control") }}
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            {{ form.department.label(class="form-label") }}
+            {{ form.department(class="form-select") }}
+        </div>
+        
+        <div class="mb-3">
+            {{ form.bio.label(class="form-label") }}
+            {{ form.bio(class="form-control", rows=4) }}
+        </div>
+        
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
+</div>
+{% endblock %}

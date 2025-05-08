@@ -1,0 +1,27 @@
+{% extends "teacher/base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Create Announcement</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        
+        <div class="mb-3">
+            {{ form.course_id.label(class="form-label") }}
+            {{ form.course_id(class="form-select") }}
+        </div>
+        
+        <div class="mb-3">
+            {{ form.title.label(class="form-label") }}
+            {{ form.title(class="form-control") }}
+        </div>
+        
+        <div class="mb-3">
+            {{ form.content.label(class="form-label") }}
+            {{ form.content(class="form-control", rows=5) }}
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Post Announcement</button>
+    </form>
+</div>
+{% endblock %}
