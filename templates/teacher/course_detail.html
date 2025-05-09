@@ -1,0 +1,85 @@
+{% extends "teacher/dashboard.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- ... existing course header ... -->
+
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Student List -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <i class="bi bi-people-fill"></i> Students ({{ students|length }})
+                </div>
+                <div class="card-body">
+                    {% if students %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Current Grade</th>
+                                    <th>Update Grade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                <tr>
+                                    <td>{{ student.username }}</td>
+                                    <td>
+                                        {% if grades.get(student.id) %}
+                                            {{ grades[student.id].grade }}
+                                        {% else %}
+                                            <span class="text-muted">No grade</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('teacher.course_detail', course_id=course.id) }}" class="d-inline">
+                                            {{ form.hidden_tag() }}
+                                            <input type="hidden" name="student_id" value="{{ student.id }}">
+                                            <div class="input-group input-group-sm">
+                                                <input type="text" name="grade" class="form-control form-control-sm" 
+                                                       value="{{ grades[student.id].grade if grades.get(student.id) else '' }}"
+                                                       placeholder="Enter grade">
+                                                <button type="submit" class="btn btn-primary btn-sm">
+                                                    <i class="bi bi-check"></i> Save
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">No students enrolled in this course.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <i class="bi bi-calendar-check"></i> Upcoming Deadlines
+                </div>
+                <div class="card-body">
+                    {% if course.deadlines %}
+                    <ul class="list-group list-group-flush">
+                        {% for deadline in course.deadlines %}
+                        <li class="list-group-item">
+                            <strong>{{ deadline.assignment }}</strong><br>
+                            Due: {{ deadline.due_date }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <div class="alert alert-info">No deadlines set for this course.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

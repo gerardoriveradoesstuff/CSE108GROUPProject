@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Deadline | {{ course.name }}</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="p-5">
+  <div class="container">
+    <h3 class="mb-4">Add Deadline for {{ course.name }}</h3>
+    <form method="POST">
+      <div class="mb-3">
+        <label for="assignment" class="form-label">Assignment</label>
+        <input type="text" class="form-control" name="assignment" id="assignment" required>
+      </div>
+      <div class="mb-3">
+        <label for="due-date" class="form-label">Due Date</label>
+        <input type="text" class="form-control" name="due-date" id="due-date" placeholder="e.g. May 10" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Add Deadline</button>
+    </form>
+  </div>
+</body>
+</html>
