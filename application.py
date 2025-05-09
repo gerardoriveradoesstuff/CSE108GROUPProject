@@ -7,7 +7,7 @@ from wtforms import SelectField
 from forms import UserAdminForm
 from dotenv import load_dotenv
 from flask_migrate import Migrate
-
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Import models and routes defined in your application
 from models import *   # Database models
@@ -107,7 +107,6 @@ class UserModelView(ModelView):
     column_exclude_list = ['password']
 
     def on_model_change(self, form, model, is_created):
-        from werkzeug.security import generate_password_hash
         if is_created or not check_password_hash(model.password, form.password.data):
             model.password = generate_password_hash(form.password.data)
 

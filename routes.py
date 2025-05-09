@@ -1,7 +1,7 @@
 # flask imports
 from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_user, login_required, logout_user, current_user
-from forms import LoginForm, RegisterForm, ForumPostForm, TeacherProfileForm
+from forms import LoginForm, RegisterForm, ForumPostForm, TeacherProfileForm, GradeForm
 import requests
 
 # security imports
@@ -23,6 +23,10 @@ teacher = Blueprint('teacher', __name__, url_prefix='/teacher')
 
 ##########################################################
 # <---- LOGIN/REGISTER SECTION ---->
+@main.route('/')
+def root():
+    return redirect(url_for('main.login'))
+
 @main.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
@@ -31,7 +35,7 @@ def login():
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
             next_page = request.args.get('next')
-            return redirect(next_page or url_for('main.student_dashboard' if user.role == 'student' else 'main.teacher_dashboard'))
+            return redirect(next_page or url_for('main.student_dashboard' if user.role == 'student' else 'teacher.teacher_dashboard'))
         flash('Invalid username or password', 'danger')
     return render_template('template-login.html', form=form)
 
@@ -312,7 +316,34 @@ def teacher_dashboard():
     ).get(current_user.id)
     
     form = ForumPostForm()
-    return render_template("template-teacher-dashboard.html", user=user, form=form)
+    return render_template("teacher/dashboard.html", user=user, form=form)
+
+@teacher.route("/course/<int:course_id>/add_announcement", methods=["GET", "POST"])
+@login_required
+def add_announcement(course_id):
+    if current_user.role != 'teacher':
+        return redirect(url_for('main.student_dashboard'))
+    
+    course = Course.query.get_or_404(course_id)
+    if course.teacher_id != current_user.id:
+        flash("Unauthorized access", "error")
+        return redirect(url_for('teacher.teacher_dashboard'))
+    
+    form = ForumPostForm()
+    form.course_id.choices = [(c.id, c.name) for c in current_user.courses_taught]
+    
+    if form.validate_on_submit():
+        announcement = Announcement(
+            announcement=form.content.data,
+            course_id=course.id,
+            user_id=current_user.id
+        )
+        db.session.add(announcement)
+        db.session.commit()
+        flash("Announcement added successfully!", "success")
+        return redirect(url_for('teacher.course_detail', course_id=course.id))
+    
+    return render_template("teacher/add_announcement.html", form=form, course=course)
 
 @teacher.route("/profile", methods=["GET", "POST"])
 @login_required
@@ -343,7 +374,7 @@ def teacher_courses():
     courses = Course.query.filter_by(teacher_id=current_user.id).all()
     return render_template("teacher/courses.html", courses=courses)
 
-@teacher.route("/course/<int:course_id>")
+@teacher.route("/course/<int:course_id>", methods=["GET", "POST"])
 @login_required
 def course_detail(course_id):
     if current_user.role != 'teacher':
@@ -354,12 +385,40 @@ def course_detail(course_id):
         flash("Unauthorized access", "error")
         return redirect(url_for('teacher.teacher_dashboard'))
     
+    form = GradeForm()  # Create form instance
     students = course.students
     grades = {g.student_id: g for g in Grade.query.filter_by(course_id=course_id).all()}
+    
+    if form.validate_on_submit():
+        # Handle form submission for grades
+        student_id = form.student_id.data
+        grade = form.grade.data
+        
+        # Update or create grade record
+        existing_grade = Grade.query.filter_by(
+            student_id=student_id,
+            course_id=course_id
+        ).first()
+        
+        if existing_grade:
+            existing_grade.grade = grade
+        else:
+            new_grade = Grade(
+                student_id=student_id,
+                course_id=course_id,
+                grade=grade
+            )
+            db.session.add(new_grade)
+        
+        db.session.commit()
+        flash("Grade updated successfully!", "success")
+        return redirect(url_for('teacher.course_detail', course_id=course_id))
+    
     return render_template("teacher/course_detail.html",
                          course=course,
                          students=students,
-                         grades=grades)
+                         grades=grades,
+                         form=form)  # Pass form to template
 
 @teacher.route("/course/<int:course_id>/add_deadline", methods=["GET", "POST"])
 @login_required

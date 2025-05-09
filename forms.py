@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, IntegerField, SelectField
 from wtforms.fields.simple import TextAreaField
 from wtforms.validators import DataRequired, Email, Length
+from wtforms.widgets import HiddenInput
 
 
 class LoginForm(FlaskForm):
@@ -10,8 +11,9 @@ class LoginForm(FlaskForm):
     submit = SubmitField("Sign in")
 
 class GradeForm(FlaskForm):
-    grade = IntegerField("Grade", validators=[DataRequired()])
-    submit = SubmitField("Update")
+    student_id = IntegerField(widget=HiddenInput())
+    grade = StringField('Grade', validators=[DataRequired()])
+    submit = SubmitField('Save')
 
 class RegisterForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired()])
