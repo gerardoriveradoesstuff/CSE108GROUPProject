@@ -1,85 +1,112 @@
-{% extends "teacher/dashboard.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ course.name }} Details | UCM University</title>
+   <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <!-- Custom Dashboard Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles-dashboard.css') }}">
+    <!-- Theme Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles-theme.css') }}">
+</head>
 
-{% block content %}
-<div class="container mt-4">
-    <!-- ... existing course header ... -->
+<body>
+{% include "template-theme.html" %}
 
-    <div class="row">
-        <div class="col-md-8">
-            <!-- Student List -->
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <i class="bi bi-people-fill"></i> Students ({{ students|length }})
-                </div>
-                <div class="card-body">
-                    {% if students %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Current Grade</th>
-                                    <th>Update Grade</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for student in students %}
-                                <tr>
-                                    <td>{{ student.username }}</td>
-                                    <td>
-                                        {% if grades.get(student.id) %}
-                                            {{ grades[student.id].grade }}
-                                        {% else %}
-                                            <span class="text-muted">No grade</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <form method="POST" action="{{ url_for('teacher.course_detail', course_id=course.id) }}" class="d-inline">
-                                            {{ form.hidden_tag() }}
-                                            <input type="hidden" name="student_id" value="{{ student.id }}">
-                                            <div class="input-group input-group-sm">
-                                                <input type="text" name="grade" class="form-control form-control-sm" 
-                                                       value="{{ grades[student.id].grade if grades.get(student.id) else '' }}"
-                                                       placeholder="Enter grade">
-                                                <button type="submit" class="btn btn-primary btn-sm">
-                                                    <i class="bi bi-check"></i> Save
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div class="alert alert-info">No students enrolled in this course.</div>
-                    {% endif %}
-                </div>
-            </div>
+    <div class="container">
+        <a href="{{ url_for('teacher.teacher_dashboard') }}" class="btn btn-outline-secondary nav-back">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+
+        <div class="course-header">
+            <h1>{{ course.name }}</h1>
+            <p class="mb-0">Course Time: {{ course.time }}</p>
         </div>
 
-        <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-header bg-info text-white">
-                    <i class="bi bi-calendar-check"></i> Upcoming Deadlines
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h3><i class="bi bi-people-fill"></i> Students ({{ students|length }})</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if students %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Current Grade</th>
+                                        <th>Update Grade</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in students %}
+                                    <tr>
+                                        <td>{{ student.username }}</td>
+                                        <td>
+                                            {% if grades.get(student.id) %}
+                                                <span class="badge bg-{{ 'success' if grades[student.id].grade in ['A','B'] else 'warning' if grades[student.id].grade in ['C','D'] else 'danger' }}">
+                                                    {{ grades[student.id].grade }}
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">No grade</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <form method="POST" class="d-inline">
+                                                <input type="hidden" name="student_id" value="{{ student.id }}">
+                                                <div class="input-group input-group-sm" style="width: 150px;">
+                                                    <input type="text" name="grade" class="form-control" 
+                                                           value="{{ grades[student.id].grade if grades.get(student.id) else '' }}"
+                                                           placeholder="A, B, C...">
+                                                    <button type="submit" class="btn btn-primary">
+                                                        <i class="bi bi-check"></i>
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">No students enrolled in this course.</div>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="card-body">
-                    {% if course.deadlines %}
-                    <ul class="list-group list-group-flush">
-                        {% for deadline in course.deadlines %}
-                        <li class="list-group-item">
-                            <strong>{{ deadline.assignment }}</strong><br>
-                            Due: {{ deadline.due_date }}
-                        </li>
-                        {% endfor %}
-                    </ul>
-                    {% else %}
-                    <div class="alert alert-info">No deadlines set for this course.</div>
-                    {% endif %}
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h3><i class="bi bi-calendar-check"></i> Upcoming Deadlines</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if course.deadlines %}
+                        <ul class="list-group list-group-flush">
+                            {% for deadline in course.deadlines %}
+                            <li class="list-group-item">
+                                <strong>{{ deadline.assignment }}</strong>
+                                <div class="text-muted small">Due: {{ deadline.due_date.strftime('%b %d, %Y %I:%M %p') }}</div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <div class="alert alert-info">No deadlines set for this course.</div>
+                        {% endif %}
+                        <a href="{{ url_for('teacher.add_deadline', course_id=course.id) }}" class="btn btn-sm btn-outline-info mt-3">
+                            <i class="bi bi-plus"></i> Add Deadline
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
