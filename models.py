@@ -143,7 +143,11 @@ class Forum(db.Model):
     title = db.Column(db.String(255), nullable=False)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'))  # Add this line
+    is_announcement = db.Column(db.Boolean, default=False)
+    
     user = db.relationship('User', backref='forums')
+    course = db.relationship('Course', backref='forum_posts')  # Add this relationship
     favorited_by = db.relationship('User', secondary='favorites', backref='favorite_posts')
 
 

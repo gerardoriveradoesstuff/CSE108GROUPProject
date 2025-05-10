@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, IntegerField, SelectField
+from wtforms import StringField, PasswordField, SubmitField, IntegerField, SelectField, BooleanField
 from wtforms.fields.simple import TextAreaField
 from wtforms.validators import DataRequired, Email, Length
 from wtforms.widgets import HiddenInput
@@ -31,6 +31,7 @@ class UserAdminForm(FlaskForm):
 class ForumPostForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     content = TextAreaField('Content', validators=[DataRequired()])
+    course_id = SelectField('Course', coerce=int)  # Add this field
 
 
 class TeacherProfileForm(FlaskForm):

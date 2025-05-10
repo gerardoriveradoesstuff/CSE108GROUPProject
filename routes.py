@@ -170,7 +170,7 @@ def forum():
         )
         db.session.add(new_post)
         db.session.commit()
-        flash('Post created successfully!', 'success')
+        flash('success')
         return redirect(url_for('main.forum'))
 
     filter_type = request.args.get('filter')
@@ -209,10 +209,10 @@ def profile():
         try:
             db.session.commit()
             db.session.refresh(user)  # force refresh from DB
-            flash("Profile updated successfully!", "success")
+            flash("Profile updated successfully!")
         except Exception as e:
             db.session.rollback()
-            flash("An error occurred while updating your profile.", "danger")
+            flash("An error occurred while updating your profile.")
 
         return redirect(url_for('main.profile'))
 
@@ -240,10 +240,10 @@ def profile_banner(user_id=None):
 
         try:
             db.session.commit()
-            flash("Profile banner updated successfully!", "success")
+            flash( "success")
         except Exception as e:
             db.session.rollback()
-            flash("Error updating profile banner.", "danger")
+            flash("Error updating profile banner.")
 
         return redirect(url_for('main.profile_banner', user_id=user_id) if user_id else url_for('main.profile_banner'))
 
@@ -326,7 +326,7 @@ def add_announcement(course_id):
     
     course = Course.query.get_or_404(course_id)
     if course.teacher_id != current_user.id:
-        flash("Unauthorized access", "error")
+        flash("Unauthorized access")
         return redirect(url_for('teacher.teacher_dashboard'))
     
     form = ForumPostForm()
@@ -340,7 +340,7 @@ def add_announcement(course_id):
         )
         db.session.add(announcement)
         db.session.commit()
-        flash("Announcement added successfully!", "success")
+        flash("success")
         return redirect(url_for('teacher.course_detail', course_id=course.id))
     
     return render_template("teacher/add_announcement.html", form=form, course=course)
@@ -350,21 +350,29 @@ def add_announcement(course_id):
 def teacher_profile():
     if current_user.role != 'teacher':
         return redirect(url_for('main.profile'))
+
+    # Eager load required relationships
+    user = db.session.query(User).options(
+        joinedload(User.courses_taught).joinedload(Course.students)
+    ).get(current_user.id)
+
+    form = TeacherProfileForm(obj=user)
     
-    form = TeacherProfileForm(obj=current_user)
     if form.validate_on_submit():
-        current_user.office_location = form.office_location.data
-        current_user.office_hours = form.office_hours.data
-        current_user.department = form.department.data
-        current_user.bio = form.bio.data
         try:
+            user.office_location = form.office_location.data
+            user.office_hours = form.office_hours.data
+            user.department = form.department.data
+            user.bio = form.bio.data
+            
             db.session.commit()
-            flash("Profile updated successfully!", "success")
+            flash("success")
+            return redirect(url_for('teacher.teacher_profile'))
         except Exception as e:
             db.session.rollback()
-            flash("Error updating profile.", "danger")
-        return redirect(url_for('teacher.teacher_profile'))
-    return render_template("teacher/profile.html", form=form, user=current_user)
+            flash("Error updating profile")
+
+    return render_template("teacher/profile.html", form=form, user=user)
 
 @teacher.route("/courses")
 @login_required
@@ -380,45 +388,51 @@ def course_detail(course_id):
     if current_user.role != 'teacher':
         return redirect(url_for('main.student_dashboard'))
     
-    course = Course.query.get_or_404(course_id)
-    if course.teacher_id != current_user.id:
-        flash("Unauthorized access", "error")
+    # Eager load all necessary relationships
+    course = db.session.query(Course).options(
+        joinedload(Course.students),
+        joinedload(Course.deadlines),
+        joinedload(Course.teacher)
+    ).get(course_id)
+    
+    if not course or course.teacher_id != current_user.id:
+        flash("Unauthorized access")
         return redirect(url_for('teacher.teacher_dashboard'))
     
-    form = GradeForm()  # Create form instance
-    students = course.students
     grades = {g.student_id: g for g in Grade.query.filter_by(course_id=course_id).all()}
     
-    if form.validate_on_submit():
-        # Handle form submission for grades
-        student_id = form.student_id.data
-        grade = form.grade.data
+    if request.method == 'POST':
+        student_id = request.form.get('student_id')
+        grade_value = request.form.get('grade')
+        
+        if not student_id or not grade_value:
+            flash("Invalid form submission")
+            return redirect(url_for('teacher.course_detail', course_id=course_id))
         
         # Update or create grade record
-        existing_grade = Grade.query.filter_by(
+        grade = Grade.query.filter_by(
             student_id=student_id,
             course_id=course_id
         ).first()
         
-        if existing_grade:
-            existing_grade.grade = grade
+        if grade:
+            grade.grade = grade_value
         else:
-            new_grade = Grade(
+            grade = Grade(
                 student_id=student_id,
                 course_id=course_id,
-                grade=grade
+                grade=grade_value
             )
-            db.session.add(new_grade)
+            db.session.add(grade)
         
         db.session.commit()
-        flash("Grade updated successfully!", "success")
+        flash("success")
         return redirect(url_for('teacher.course_detail', course_id=course_id))
     
     return render_template("teacher/course_detail.html",
                          course=course,
-                         students=students,
-                         grades=grades,
-                         form=form)  # Pass form to template
+                         students=course.students,
+                         grades=grades)
 
 @teacher.route("/course/<int:course_id>/add_deadline", methods=["GET", "POST"])
 @login_required
@@ -428,7 +442,7 @@ def add_deadline(course_id):
     
     course = Course.query.get_or_404(course_id)
     if course.teacher_id != current_user.id:
-        flash("Unauthorized access", "error")
+        flash("Unauthorized access")
         return redirect(url_for('teacher.teacher_dashboard'))
     
     if request.method == "POST":
@@ -436,7 +450,7 @@ def add_deadline(course_id):
         due_date_str = request.form.get("due-date", "").strip()
         
         if not assignment or not due_date_str:
-            flash("Assignment name and due date are required", "error")
+            flash("Assignment name and due date are required")
         else:
             try:
                 due_date = datetime.strptime(due_date_str, "%Y-%m-%dT%H:%M")
@@ -448,44 +462,63 @@ def add_deadline(course_id):
                 )
                 db.session.add(deadline)
                 db.session.commit()
-                flash("Deadline added successfully!", "success")
+                flash("success")
                 return redirect(url_for('teacher.course_detail', course_id=course.id))
             except ValueError:
-                flash("Invalid date format", "error")
+                flash("error")
     return render_template("teacher/add_deadline.html", course=course)
 
-@teacher.route("/forum")
+@teacher.route("/forum", methods=["GET", "POST"])
 @login_required
 def teacher_forum():
     if current_user.role != 'teacher':
         return redirect(url_for('main.forum'))
-    
-    teacher_course_ids = [c.id for c in current_user.courses_taught]
-    posts = Forum.query.filter(Forum.course_id.in_(teacher_course_ids))\
-                      .order_by(Forum.created_at.desc()).all()
-    return render_template("teacher/forum.html", posts=posts)
 
-@teacher.route("/forum/create", methods=["GET", "POST"])
-@login_required
-def create_post():
-    if current_user.role != 'teacher':
-        return redirect(url_for('main.forum'))
-    
+    # Eager load all necessary relationships
+    user = db.session.query(User).options(
+        joinedload(User.courses_taught)
+    ).get(current_user.id)
+
     form = ForumPostForm()
-    form.course_id.choices = [(c.id, c.name) for c in current_user.courses_taught]
-    
+    form.course_id.choices = [(c.id, c.name) for c in user.courses_taught]
+
     if form.validate_on_submit():
         post = Forum(
             title=form.title.data,
             content=form.content.data,
             user_id=current_user.id,
             course_id=form.course_id.data,
-            is_announcement=True
+            is_announcement=form.is_announcement.data if hasattr(form, 'is_announcement') else False
         )
         db.session.add(post)
         db.session.commit()
-        flash("Post created successfully!", "success")
+        flash("success")
         return redirect(url_for('teacher.teacher_forum'))
+
+    # Get posts with eager loading
+    teacher_course_ids = [c.id for c in user.courses_taught]
+    posts = db.session.query(Forum).options(
+        joinedload(Forum.user),
+        joinedload(Forum.course)
+    ).filter(
+        Forum.course_id.in_(teacher_course_ids)
+    ).order_by(Forum.id.desc()).all()
+
+    return render_template("teacher/forum.html", posts=posts, form=form)
+
+@teacher.route("/forum/create", methods=["GET"])
+@login_required
+def create_post():
+    if current_user.role != 'teacher':
+        return redirect(url_for('main.forum'))
+
+    # Eager load courses
+    user = db.session.query(User).options(
+        joinedload(User.courses_taught)
+    ).get(current_user.id)
+
+    form = ForumPostForm()
+    form.course_id.choices = [(c.id, c.name) for c in user.courses_taught]
     return render_template("teacher/create_post.html", form=form)
 
 ##########################################################
