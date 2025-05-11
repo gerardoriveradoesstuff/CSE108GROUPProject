@@ -309,44 +309,52 @@ def drop_course(course_id):
 def teacher_dashboard():
     if current_user.role != 'teacher':
         return redirect(url_for('main.student_dashboard'))
-    
+
     user = User.query.options(
-        joinedload(User.courses_taught)
-            .joinedload(Course.deadlines),
-        joinedload(User.courses_taught)
-            .joinedload(Course.students),
-        joinedload(User.announcements)
+        joinedload(User.courses_taught).joinedload(Course.deadlines),
+        joinedload(User.courses_taught).joinedload(Course.students),
+        joinedload(User.courses_taught).joinedload(Course.announcements)
     ).get(current_user.id)
-    
+
+    # 🧠 Flatten all announcements across teacher's courses
+    announcements = []
+    for course in user.courses_taught:
+        announcements.extend(course.announcements)
+
     form = ForumPostForm()
-    return render_template("teacher/dashboard.html", user=user, form=form)
+    return render_template("teacher/dashboard.html", user=user, form=form, announcements=announcements)
+
 
 @teacher.route("/course/<int:course_id>/add_announcement", methods=["GET", "POST"])
 @login_required
 def add_announcement(course_id):
     if current_user.role != 'teacher':
         return redirect(url_for('main.student_dashboard'))
-    
+
     course = Course.query.get_or_404(course_id)
     if course.teacher_id != current_user.id:
         flash("Unauthorized access")
         return redirect(url_for('teacher.teacher_dashboard'))
-    
-    form = ForumPostForm()
-    form.course_id.choices = [(c.id, c.name) for c in current_user.courses_taught]
-    
-    if form.validate_on_submit():
-        announcement = Announcement(
-            announcement=form.content.data,
-            course_id=course.id,
-            user_id=current_user.id
-        )
-        db.session.add(announcement)
-        db.session.commit()
-        flash("success")
-        return redirect(url_for('teacher.course_detail', course_id=course.id))
-    
-    return render_template("teacher/add_announcement.html", form=form, course=course)
+
+    if request.method == "POST":
+        announcement = request.form.get("announcement", "").strip()
+        due_date = request.form.get("due-date", "").strip()
+
+        if not announcement or not due_date:
+            flash("All fields are required.")
+        else:
+            new_announcement = Announcement(
+                announcement=announcement,
+                course_id=course.id,
+                user_id=current_user.id
+            )
+            db.session.add(new_announcement)
+            db.session.commit()
+            flash("Announcement posted!", "success")
+            return redirect(url_for('teacher.course_detail', course_id=course.id))
+
+    return render_template("template-add-announcement.html", course=course)
+
 
 @teacher.route("/profile", methods=["GET", "POST"])
 @login_required
