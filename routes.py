@@ -162,11 +162,16 @@ def scholar_feed():
 def forum():
     form = ForumPostForm()
 
+    # Set course choices BEFORE validation
+    user = User.query.options(joinedload(User.courses_enrolled)).get(current_user.id)
+    form.course_id.choices = [(c.id, c.name) for c in user.courses_enrolled]
+
     if form.validate_on_submit():
         new_post = Forum(
             title=form.title.data,
             content=form.content.data,
-            user_id=current_user.id
+            user_id=current_user.id,
+            course_id=form.course_id.data
         )
         db.session.add(new_post)
         db.session.commit()
@@ -174,10 +179,10 @@ def forum():
         return redirect(url_for('main.forum'))
 
     filter_type = request.args.get('filter')
-    user = User.query.get(current_user.id)
     posts = user.favorite_posts if filter_type == 'favorites' else Forum.query.order_by(Forum.id.desc()).all()
 
     return render_template('template-forum.html', form=form, posts=posts, filter_type=filter_type)
+
 
 @main.route('/forum/<int:post_id>/favorite', methods=['POST'])
 @login_required

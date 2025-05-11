@@ -2,45 +2,91 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Forum | UCM University</title>
-   <!-- Bootstrap CSS -->
+    <title>Forum</title>
+
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <!-- Custom Dashboard Styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles-dashboard.css') }}">
     <!-- Theme Styles -->
     <link rel="stylesheet" href="{{ url_for('static', filename='styles-theme.css') }}">
+
 </head>
-
 <body>
+<!-- templates/template-forum.html -->
+{% block content %}
 {% include "template-theme.html" %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        {% include "template-sidebar.html" %}
 
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Course Discussions</h2>
-            <a href="{{ url_for('teacher.create_post') }}" class="btn btn-primary">
-                <i class="bi bi-plus-lg"></i> New Post
-            </a>
-        </div>
+        <!-- Main content -->
+        <div class="col-md-9 p-4 mt-4">
+            <h2>Forum</h2>
 
-        <div class="list-group">
-            {% for post in posts %}
-            <div class="list-group-item">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">{{ post.title }}</h5>
-                    <small>
-                        Posted by: {{ post.user.username if post.user else 'Unknown' }}
-                    </small>
-                </div>
-                <p class="mb-1">{{ post.content }}</p>
-                {% if post.course %}
-                <small>Course: {{ post.course.name }}</small>
-                {% endif %}
+            <div class="mb-3">
+                <a href="{{ url_for('main.forum') }}"
+                   class="btn btn-outline-primary {% if not filter_type %}active{% endif %}">
+                    All Posts
+                </a>
+                <a href="{{ url_for('main.forum', filter='favorites') }}"
+                   class="btn btn-outline-warning {% if filter_type == 'favorites' %}active{% endif %}">
+                    Favorites
+                </a>
             </div>
-            {% else %}
-            <div class="alert alert-info">No discussions yet.</div>
+
+            <form method="POST" class="mb-4">
+                {{ form.hidden_tag() }}
+                <div class="form-group mb-2">
+                    {{ form.title(class="form-control", placeholder="Post Title") }}
+                </div>
+                <div class="form-group mb-2">
+                    {{ form.content(class="form-control", placeholder="What's on your mind?", rows="4") }}
+                </div>
+                <div class="form-group mb-3">
+                    {{ form.course_id.label(class="form-label") }}
+                    {{ form.course_id(class="form-select") }}
+                </div>
+                <button type="submit" class="btn btn-primary">Post</button>
+            </form>
+
+
+            {% if posts %}
+            {% for post in posts %}
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <strong>{{ post.user.username }}</strong>
+                    <form action="{{ url_for('main.toggle_favorite', post_id=post.id) }}" method="post"
+                          style="margin: 0;">
+                        {{ form.csrf_token }}
+                        <button type="submit" style="background: none; border: none;">
+                            {% if current_user in post.favorited_by %}
+                            ⭐
+                            {% else %}
+                            ☆
+                            {% endif %}
+                        </button>
+                    </form>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ post.title }}</h5>
+                    <p class="card-text">{{ post.content }}</p>
+                </div>
+            </div>
             {% endfor %}
+            {% else %}
+            <p class="text-muted">No posts to show{% if filter_type == 'favorites' %}, try favoriting some!{% endif
+                %}</p>
+            {% endif %}
         </div>
     </div>
+</div>
+{% endblock %}
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='theme.js') }}"></script>
 </body>
 </html>
