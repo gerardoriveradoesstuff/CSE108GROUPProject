@@ -51,8 +51,13 @@
                                     {{ form.content(class="form-control", rows="3", placeholder="What's on your mind?")
                                     }}
                                 </div>
+                                <div class="mb-2">
+                                    {{ form.course_id.label(class="form-label") }}
+                                    {{ form.course_id(class="form-select") }}
+                                </div>
                                 <button type="submit" class="btn btn-sm btn-primary">Post</button>
                             </form>
+
                             <hr class="my-2">
                             <a href="{{ url_for('main.forum') }}" class="btn btn-link p-0">View all posts →</a>
                         </div>

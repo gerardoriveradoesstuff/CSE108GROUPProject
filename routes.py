@@ -74,14 +74,12 @@ def student_dashboard():
     # re-fetch the user with all relationships eagerly loaded
 
     user = User.query.options(
-        joinedload(User.courses_enrolled)
-        .joinedload(Course.teacher),
-        joinedload(User.courses_enrolled)
-        .joinedload(Course.deadlines)
+        joinedload(User.courses_enrolled).joinedload(Course.teacher),
+        joinedload(User.courses_enrolled).joinedload(Course.deadlines)
     ).get(current_user.id)
 
     form = ForumPostForm()
-
+    form.course_id.choices = [(c.id, c.name) for c in user.courses_enrolled] or [(-1, 'No enrolled courses')]
     return render_template("template-student-dashboard.html", user=user, form=form)
 
 @main.context_processor
