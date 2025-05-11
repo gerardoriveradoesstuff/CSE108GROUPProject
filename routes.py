@@ -437,21 +437,22 @@ def course_detail(course_id):
                          students=course.students,
                          grades=grades)
 
+
 @teacher.route("/course/<int:course_id>/add_deadline", methods=["GET", "POST"])
 @login_required
 def add_deadline(course_id):
     if current_user.role != 'teacher':
         return redirect(url_for('main.student_dashboard'))
-    
+
     course = Course.query.get_or_404(course_id)
     if course.teacher_id != current_user.id:
         flash("Unauthorized access")
         return redirect(url_for('teacher.teacher_dashboard'))
-    
+
     if request.method == "POST":
         assignment = request.form.get("assignment", "").strip()
         due_date_str = request.form.get("due-date", "").strip()
-        
+
         if not assignment or not due_date_str:
             flash("Assignment name and due date are required")
         else:
@@ -468,8 +469,10 @@ def add_deadline(course_id):
                 flash("success")
                 return redirect(url_for('teacher.course_detail', course_id=course.id))
             except ValueError:
-                flash("error")
-    return render_template("teacher/add_deadline.html", course=course)
+                flash("Invalid date format")
+
+    return render_template("template-add-deadline.html", course=course)
+
 
 @teacher.route("/forum", methods=["GET", "POST"])
 @login_required
