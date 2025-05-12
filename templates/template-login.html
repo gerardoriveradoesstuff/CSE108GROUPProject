@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login | ACME University</title>
+    <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h2>ACME University</h2>
+    <h2>Login</h2>
     <form method="POST">
         {{ form.hidden_tag() }}
         <p>{{ form.username.label }}<br>{{ form.username(size=32) }}</p>
